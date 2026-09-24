@@ -1,0 +1,45 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Sora:wght@600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-dental-bg text-slate-800 font-sans;
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.45s ease-out forwards;
+}
+
+.hero-blur-layer img {
+  transition: transform 8s ease-out, filter 0.6s ease;
+}
+
+.hero-blur-layer:hover img {
+  transform: scale(1.03);
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary-600 hover:bg-primary-700 text-white font-medium px-4 py-2 rounded-lg transition-colors duration-150 disabled:opacity-60 disabled:cursor-not-allowed;
+  }
+  .btn-ghost {
+    @apply text-dental-muted hover:text-slate-800 hover:bg-slate-100 px-3 py-2 rounded-lg transition-colors duration-150;
+  }
+  .input {
+    @apply w-full border border-dental-border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white placeholder-slate-400 transition;
+  }
+  .card {
+    @apply bg-white border border-dental-border rounded-xl shadow-sm;
+  }
+  .label {
+    @apply block text-sm font-medium text-slate-700 mb-1;
+  }
+}
