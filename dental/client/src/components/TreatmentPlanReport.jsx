@@ -6,20 +6,28 @@ const TreatmentPlanReport = ({ plan, patient, chartTeeth, onClose }) => {
   const printRef = useRef(null);
 
   const handlePrint = () => {
-    const content = printRef.current?.innerHTML;
-    if (!content) return;
+    const node = printRef.current;
+    if (!node) return;
     const win = window.open("", "_blank");
-    win.document.write(`
-      <html><head><title>Treatment Plan — ${patient?.firstName} ${patient?.lastName}</title>
-      <style>
-        body{font-family:Georgia,serif;padding:32px;color:#1e293b;max-width:800px;margin:0 auto}
-        h1{font-size:22px;margin:0 0 8px} table{width:100%;border-collapse:collapse;margin:16px 0}
-        th,td{border:1px solid #e2e8f0;padding:8px;text-align:left;font-size:13px}
-        th{background:#f8fafc}.total{font-size:18px;font-weight:bold;text-align:right;margin-top:16px}
-        .meta{color:#64748b;font-size:13px}
-      </style></head><body>${content}</body></html>
-    `);
-    win.document.close();
+    if (!win) return;
+    const doc = win.document;
+
+    // Build the print document with DOM APIs rather than document.write of an
+    // HTML string: the title is set as a property and the report body is a
+    // deep clone of the already-rendered React nodes, so no markup is parsed
+    // from a string (avoids any HTML-injection sink).
+    doc.title = `Treatment Plan — ${[patient?.firstName, patient?.lastName].filter(Boolean).join(" ")}`;
+    const style = doc.createElement("style");
+    style.textContent = `
+      body{font-family:Georgia,serif;padding:32px;color:#1e293b;max-width:800px;margin:0 auto}
+      h1{font-size:22px;margin:0 0 8px} table{width:100%;border-collapse:collapse;margin:16px 0}
+      th,td{border:1px solid #e2e8f0;padding:8px;text-align:left;font-size:13px}
+      th{background:#f8fafc}.total{font-size:18px;font-weight:bold;text-align:right;margin-top:16px}
+      .meta{color:#64748b;font-size:13px}
+    `;
+    doc.head.appendChild(style);
+    doc.body.appendChild(doc.importNode(node, true));
+    win.focus();
     win.print();
   };
 

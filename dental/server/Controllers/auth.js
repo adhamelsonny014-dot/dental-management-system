@@ -2,10 +2,29 @@ const jwt = require("jsonwebtoken");
 const User = require("../Models/User");
 const Staff = require("../Models/Staff");
 const asyncHandler = require("../utils/asyncHandler");
+const { isStrongPassword, PASSWORD_MESSAGE } = require("../utils/password");
+
+const TOKEN_TTL_DAYS = 7;
 
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+  return jwt.sign({ id }, process.env.JWT_SECRET, {
+    expiresIn: `${TOKEN_TTL_DAYS}d`,
+    algorithm: "HS256",
+  });
 };
+
+// Deliver the JWT in an httpOnly cookie so page scripts (and any future XSS)
+// can't read the session token. The token is also returned in the body for
+// non-browser API clients and tests.
+const authCookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax",
+  path: "/",
+  maxAge: TOKEN_TTL_DAYS * 24 * 60 * 60 * 1000,
+};
+
+const setAuthCookie = (res, token) => res.cookie("token", token, authCookieOptions);
 
 // POST /api/auth/login
 const login = asyncHandler(async (req, res) => {
@@ -33,6 +52,7 @@ const login = asyncHandler(async (req, res) => {
   await user.save({ validateBeforeSave: false });
 
   const token = generateToken(user._id);
+  setAuthCookie(res, token);
 
   // If dentist, attach their staff record ID
   let staffId = null;
@@ -42,6 +62,12 @@ const login = asyncHandler(async (req, res) => {
   }
 
   return res.status(200).json({ token, user: { ...user.toJSON(), staffId } });
+});
+
+// POST /api/auth/logout — clear the session cookie
+const logout = asyncHandler(async (req, res) => {
+  res.clearCookie("token", { ...authCookieOptions, maxAge: undefined });
+  return res.status(200).json({ message: "Logged out" });
 });
 
 // GET /api/auth/me (protected)
@@ -67,8 +93,8 @@ const adminCreateAccount = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: "Invalid role" });
   }
 
-  if (password.length < 6) {
-    return res.status(400).json({ message: "Password must be at least 6 characters" });
+  if (!isStrongPassword(password)) {
+    return res.status(400).json({ message: PASSWORD_MESSAGE });
   }
 
   const existing = await User.findOne({ email });
@@ -96,7 +122,12 @@ const adminUpdateAccount = asyncHandler(async (req, res) => {
   if (email) user.email = email;
   if (role) user.role = role;
   if (isActive !== undefined) user.isActive = isActive;
-  if (password && password.length >= 6) user.password = password;
+  if (password) {
+    if (!isStrongPassword(password)) {
+      return res.status(400).json({ message: PASSWORD_MESSAGE });
+    }
+    user.password = password;
+  }
 
   await user.save();
   const updated = await User.findById(user._id).select("-password");
@@ -115,6 +146,7 @@ const adminDeleteAccount = asyncHandler(async (req, res) => {
 
 module.exports = {
   login,
+  logout,
   getMe,
   adminCreateAccount,
   adminListAccounts,

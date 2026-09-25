@@ -1,6 +1,6 @@
-const crypto = require("crypto");
 const Staff = require("../Models/Staff");
 const User = require("../Models/User");
+const { generateTempPassword } = require("../utils/password");
 
 const FEATURED = [
   {
@@ -37,7 +37,7 @@ const FEATURED = [
 
 const createDoctorLogin = async (staffDoc, doc) => {
   // No hard-coded default: use SEED_DOCTOR_PASSWORD, or a random password printed once
-  const password = process.env.SEED_DOCTOR_PASSWORD || crypto.randomBytes(6).toString("base64url");
+  const password = process.env.SEED_DOCTOR_PASSWORD || generateTempPassword();
   let user = await User.findOne({ email: doc.email });
   if (!user) {
     user = await User.create({

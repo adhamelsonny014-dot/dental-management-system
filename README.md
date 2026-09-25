@@ -174,10 +174,13 @@ The server test suite (`server/tests/api.test.js`) spins up a real in-memory Mon
 Express app end-to-end: authentication and role guards, error codes, patient numbering and cascade
 delete, the billing lifecycle, report totals, the full website-booking flow, and notification delivery.
 
-**Security measures:** `helmet` headers; rate limits on login and the public forms; a per-model field
-allowlist so requests can't set server-managed fields (`patientNumber`, `receiptNumber`, `createdBy`,
-`role`); role-based route guards; dentists scoped to their own patients; bcrypt password hashing; and
-HTML-escaped emails. See [`SECURITY_ASSESSMENT.md`](dental/SECURITY_ASSESSMENT.md) for a source review.
+**Security measures:** `helmet` headers; rate limits on login and the public forms; a request-input
+sanitizer that blocks NoSQL operator injection (`$`/dotted keys); a per-model field allowlist so
+requests can't set server-managed fields (`patientNumber`, `receiptNumber`, `createdBy`, `role`);
+role-based route guards; dentists scoped to their own patients; the session JWT delivered in an
+`httpOnly`, `SameSite` cookie (pinned to `HS256`); bcrypt password hashing with an 8-character
+letter-and-number policy; and HTML-escaped emails. See
+[`SECURITY_ASSESSMENT.md`](dental/SECURITY_ASSESSMENT.md) for the full source review.
 
 ---
 
@@ -208,7 +211,7 @@ dental/
     │   ├── hooks/             # useDentists, usePatient, useClinic
     │   ├── constants/teeth.js
     │   ├── context/AuthContext.jsx
-    │   ├── utils/             # api.js (Axios + JWT), format.js
+    │   ├── utils/             # api.js (Axios + auth cookie), format.js
     │   └── App.jsx            # Routes, lazy-loaded pages
     ├── eslint.config.js
     └── vite.config.js
@@ -218,12 +221,13 @@ dental/
 
 ## API reference
 
-All protected routes require `Authorization: Bearer <token>`. "Auth" shows the minimum role.
+Protected routes accept the session as an `httpOnly` cookie set at login (used by the web app) or an `Authorization: Bearer <token>` header (for API clients). "Auth" shows the minimum role.
 
 ### Authentication — `/api/auth`
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
-| POST | `/login` | — | Get a JWT |
+| POST | `/login` | — | Sign in; sets the session cookie and returns the JWT |
+| POST | `/logout` | — | Clear the session cookie |
 | GET | `/me` | Any | Current user |
 | POST | `/admin/create-account` | Admin | Create a staff login |
 | GET / PUT / DELETE | `/admin/accounts[/:id]` | Admin | List / update / delete logins |

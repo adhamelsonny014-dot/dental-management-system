@@ -1,13 +1,11 @@
-const crypto = require("crypto");
 const Staff = require("../Models/Staff");
 const User = require("../Models/User");
 const asyncHandler = require("../utils/asyncHandler");
 const { FIELDS, pick } = require("../utils/fields");
+const { generateTempPassword } = require("../utils/password");
 
 // Staff roles that map directly to a login role; everyone else gets "assistant"
 const LOGIN_ROLE = { dentist: "dentist", receptionist: "receptionist" };
-
-const generateTempPassword = () => crypto.randomBytes(6).toString("base64url");
 
 // GET /api/staff?role=&active=
 const getAllStaff = asyncHandler(async (req, res) => {

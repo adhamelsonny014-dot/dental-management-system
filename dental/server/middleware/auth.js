@@ -1,15 +1,26 @@
 const jwt = require("jsonwebtoken");
 const User = require("../Models/User");
 
+// Read the JWT from the Authorization header (API clients) or the httpOnly cookie (browser).
+const readToken = (req) => {
+  const authHeader = req.headers.authorization;
+  if (authHeader?.startsWith("Bearer ")) return authHeader.split(" ")[1];
+  const cookie = req.headers.cookie;
+  if (cookie) {
+    const match = cookie.split(";").find((c) => c.trim().startsWith("token="));
+    if (match) return decodeURIComponent(match.trim().slice("token=".length));
+  }
+  return null;
+};
+
 const protect = async (req, res, next) => {
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    const token = readToken(req);
+    if (!token) {
       return res.status(401).json({ message: "Not authorized, no token" });
     }
 
-    const token = authHeader.split(" ")[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ["HS256"] });
 
     const user = await User.findById(decoded.id).select("-password");
     if (!user || !user.isActive) {

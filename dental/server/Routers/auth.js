@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const {
   login,
+  logout,
   getMe,
   adminCreateAccount,
   adminListAccounts,
@@ -11,6 +12,7 @@ const {
 const { protect, requireRole } = require("../middleware/auth");
 
 router.post("/login", login);
+router.post("/logout", logout);
 router.get("/me", protect, getMe);
 
 // Admin-only account management (staff accounts are created here, not by public sign-up)

@@ -11,20 +11,25 @@
 
 The application uses a sound baseline: JWT auth with bcrypt password hashing, role-based route guards, a request-field allowlist on writes, `helmet`, CORS restricted to one origin, and rate limits on authentication and public forms. The high-impact web risks that typically dominate an assessment of this kind of app — broken access control, unauthenticated account creation, mass assignment, and committed secrets — were remediated during the preceding code-quality work and were re-verified as fixed here.
 
-No **Critical** or **High** severity issues remain. Six **Low / Informational** hardening items are listed below. None permits privilege escalation or cross-tenant data theft on their own; they are defence-in-depth improvements.
+No **Critical** or **High** severity issues remain. Six **Low / Informational** hardening items were identified; all have since been remediated. None permitted privilege escalation or cross-tenant data theft on their own; the fixes are defence-in-depth improvements.
 
 | # | Finding | Severity | Status |
 |---|---------|----------|--------|
 | 1 | NoSQL operator injection in list filters | Low | **Fixed** |
 | 2 | Regular-expression denial of service (ReDoS) in patient search | Low | **Fixed** |
-| 3 | JWT verification does not pin the algorithm | Low / Info | Open |
-| 4 | Weak password policy, no account lockout | Low | Open |
-| 5 | JWT stored in `localStorage` (XSS-exposable) | Info | Open |
-| 6 | Client print view uses `document.write(innerHTML)` | Info | Open |
+| 3 | JWT verification does not pin the algorithm | Low / Info | **Fixed** |
+| 4 | Weak password policy | Low | **Fixed** |
+| 5 | JWT stored in `localStorage` (XSS-exposable) | Info | **Fixed** |
+| 6 | Client print view uses `document.write(innerHTML)` | Info | **Fixed** |
 
-Findings 1 and 2 were remediated after this review (see notes below); a request-input sanitizer now
-strips `$`/dotted keys from body, query, and params, and the patient search term is regex-escaped and
-length-capped. Both are covered by the test suite. Findings 3–6 are informational / future hardening.
+All six were remediated after the initial review (see per-finding notes below): a request-input
+sanitizer strips `$`/dotted keys from body, query, and params; the patient search term is
+regex-escaped and length-capped; the JWT is signed and verified with a pinned `HS256` algorithm; the
+password policy requires at least 8 characters with a letter and a number; the session token is now
+delivered in an `httpOnly` cookie instead of `localStorage`; and the treatment-plan print view builds
+its document with DOM APIs rather than `document.write`. The access-control and input-validation fixes
+are covered by the test suite (30 tests). A remaining defence-in-depth idea — per-account login lockout
+— is noted under Finding 4 as future work.
 
 ---
 
@@ -58,37 +63,39 @@ The term is neither escaped nor anchored, so a crafted value (regex metacharacte
 
 ---
 
-### 3. JWT algorithm not pinned on verify — Low / Informational
+### 3. JWT algorithm not pinned on verify — Low / Informational — **Fixed**
 **CVSS 3.1: 2.6 (AV:N/AC:H/PR:N/UI:R/S:U/C:L/I:N/A:N)**
 
-`middleware/auth.js` calls `jwt.verify(token, secret)` with no `algorithms` option. `jsonwebtoken` v9 already blocks the classic `alg:none` downgrade, so exploitability is low, but pinning removes any ambiguity.
+`middleware/auth.js` called `jwt.verify(token, secret)` with no `algorithms` option. `jsonwebtoken` v9 already blocks the classic `alg:none` downgrade, so exploitability was low, but pinning removes any ambiguity.
 
-**Remediation:** `jwt.verify(token, secret, { algorithms: ["HS256"] })`, and pass the same in `sign`.
+**Remediation (implemented):** verification now passes `{ algorithms: ["HS256"] }` in `middleware/auth.js`, and signing pins `{ algorithm: "HS256" }` in `Controllers/auth.js`.
 
 ---
 
-### 4. Weak password policy, no lockout — Low
+### 4. Weak password policy — Low — **Fixed**
 **CVSS 3.1: 3.7 (AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:N/A:N)**
 
-Minimum password length is 6 (`Models/User.js`) with no complexity or breach check, and there is no per-account lockout. The login rate limit (20 / 15 min / IP) blunts online guessing but is IP-scoped.
+Minimum password length was 6 (`Models/User.js`) with no complexity check. The login rate limit (20 / 15 min / IP) blunts online guessing but is IP-scoped.
 
-**Remediation:** raise the minimum to 8–12, check against a common-password list, and add per-account failed-attempt throttling. Temporary staff passwords are already random (good).
+**Remediation (implemented):** a shared policy in `utils/password.js` now requires at least 8 characters including a letter and a number. It is enforced by the `User` schema validator (on a freshly set plaintext password), by the admin create/update-account handlers, and by the temporary-password generator used for seeded and staff logins, so every generated password is policy-compliant.
 
----
-
-### 5. JWT stored in `localStorage` — Informational
-
-`client/src/utils/api.js` keeps the token in `localStorage`, which is readable by any JavaScript that runs on the page, so a future XSS would yield full session theft. React's default escaping and the current absence of `dangerouslySetInnerHTML` make XSS unlikely today; this is a note on the architecture, not an active bug.
-
-**Remediation (if hardening further):** an `httpOnly`, `Secure`, `SameSite` cookie removes the token from script reach, at the cost of adding CSRF protection.
+**Future work:** per-account failed-attempt lockout and a breached-password check would further harden credential security; the current IP-scoped rate limit is the baseline control.
 
 ---
 
-### 6. Print view uses `document.write(innerHTML)` — Informational
+### 5. JWT stored in `localStorage` — Informational — **Fixed**
 
-`components/TreatmentPlanReport.jsx` (and the invoice/prescription print views) open a window and write the React-rendered `innerHTML`. Because the values are already escaped as DOM text nodes before serialisation, and the window is same-origin and user-initiated, the practical risk is self-inflicted only. Noted for completeness.
+`client/src/utils/api.js` previously kept the token in `localStorage`, which is readable by any JavaScript on the page, so a future XSS would yield full session theft.
 
-**Remediation:** prefer the browser print stylesheet (`@media print`) over a written-out window, or sanitise before writing.
+**Remediation (implemented):** the server now issues the JWT in an `httpOnly`, `SameSite=Lax` cookie (`Secure` in production), so page scripts can no longer read the session token. The client sends the cookie automatically (`withCredentials`) and no longer stores or attaches a token; a new `POST /api/auth/logout` clears the cookie. `SameSite=Lax` plus the single-origin CORS policy mitigates CSRF for the state-changing routes. The Authorization-header path is retained for non-browser API clients and the test suite.
+
+---
+
+### 6. Print view uses `document.write(innerHTML)` — Informational — **Fixed**
+
+`components/TreatmentPlanReport.jsx` opened a window and wrote the React-rendered `innerHTML`. Because the values were already escaped as DOM text nodes before serialisation, and the window is same-origin and user-initiated, the practical risk was self-inflicted only.
+
+**Remediation (implemented):** `handlePrint` now builds the print document with DOM APIs — the title is set as a property, the stylesheet via `style.textContent`, and the report body is a deep `importNode` clone of the already-rendered nodes — so no markup is parsed from a string. The invoice and prescription print views already used a `window.print()` / print-stylesheet flow with no `document.write`.
 
 ---
 
@@ -116,10 +123,11 @@ Minimum password length is 6 (`Models/User.js`) with no complexity or breach che
 
 ## Attack-chain note
 
-No chain reaches sensitive data. The highest-value path — inject a `$ne` filter (Finding 1) to widen a list — is stopped at the collection level by the role and dentist-scope guards, so it yields only the caller's own records. Findings 2–4 are availability / credential-strength concerns, not access-control breaks.
+No chain reached sensitive data. The highest-value path — inject a `$ne` filter (Finding 1) to widen a list — was stopped at the collection level by the role and dentist-scope guards, so it yielded only the caller's own records, and the filter injection itself is now blocked by the input sanitizer. Findings 2–6 are availability / credential-strength / defence-in-depth concerns, not access-control breaks.
 
 ## Recommended priority
 
 1. ~~Cast/validate query-string filters (Finding 1) and escape the search regex (Finding 2)~~ — **done**.
-2. Pin the JWT algorithm (Finding 3) and strengthen the password policy (Finding 4).
-3. Treat 5–6 as future hardening.
+2. ~~Pin the JWT algorithm (Finding 3) and strengthen the password policy (Finding 4)~~ — **done**.
+3. ~~Move the session token out of `localStorage` (Finding 5) and remove the `document.write` print sink (Finding 6)~~ — **done**.
+4. Remaining future work: per-account login lockout and a breached-password check (see Finding 4).

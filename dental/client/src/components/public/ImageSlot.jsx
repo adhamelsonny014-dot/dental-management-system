@@ -1,35 +1,20 @@
 import { useState, useEffect } from "react";
 
 /**
- * Shows an image from siteImages config, or a creamy placeholder.
- * Optional local upload (preview only) — for production, use files in public/site/.
+ * Shows an image from siteImages config, or a creamy placeholder when the file
+ * is missing. Public/read-only — site images are managed as files in
+ * public/site/, so there is no in-page upload control.
  */
-const ImageSlot = ({
-  src,
-  alt = "",
-  className = "",
-  label = "Add your image",
-  hint = "",
-  allowUpload = true,
-}) => {
+const ImageSlot = ({ src, alt = "", className = "", label = "Add your image", hint = "" }) => {
   const [resolved, setResolved] = useState(src);
   const [failed, setFailed] = useState(false);
-  const [preview, setPreview] = useState(null);
 
   useEffect(() => {
     setResolved(src);
     setFailed(false);
-    setPreview(null);
   }, [src]);
 
-  const display = preview || (failed ? null : resolved);
-
-  const handleFile = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setPreview(URL.createObjectURL(file));
-    setFailed(false);
-  };
+  const display = failed ? null : resolved;
 
   const onError = () => setFailed(true);
 
@@ -37,19 +22,13 @@ const ImageSlot = ({
     return (
       <figure className={`relative overflow-hidden ${className}`}>
         <img src={display} alt={alt} onError={onError} className="w-full h-full object-cover" />
-        {allowUpload && (
-          <label className="absolute bottom-3 right-3 cursor-pointer rounded-full bg-clinic-ink/75 text-clinic-cream text-[10px] uppercase tracking-wider px-3 py-1.5 backdrop-blur-sm hover:bg-clinic-accent transition-colors">
-            Change photo
-            <input type="file" accept="image/*" className="hidden" onChange={handleFile} />
-          </label>
-        )}
       </figure>
     );
   }
 
   return (
-    <label
-      className={`group flex flex-col items-center justify-center cursor-pointer border-2 border-dashed border-clinic-border bg-clinic-sand/80 hover:border-clinic-accent/50 hover:bg-clinic-stone/50 transition-all ${className}`}
+    <div
+      className={`group flex flex-col items-center justify-center border-2 border-dashed border-clinic-border bg-clinic-sand/80 ${className}`}
     >
       <span className="w-12 h-12 rounded-2xl bg-clinic-cream flex items-center justify-center text-clinic-accent mb-3 shadow-sm">
         <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -63,15 +42,7 @@ const ImageSlot = ({
       </span>
       <span className="text-sm font-medium text-clinic-ink/80">{label}</span>
       {hint && <span className="text-xs text-clinic-muted mt-1 px-4 text-center">{hint}</span>}
-      {allowUpload && (
-        <>
-          <span className="mt-3 text-[10px] uppercase tracking-widest text-clinic-accent">
-            Click to preview upload
-          </span>
-          <input type="file" accept="image/*" className="hidden" onChange={handleFile} />
-        </>
-      )}
-    </label>
+    </div>
   );
 };
 

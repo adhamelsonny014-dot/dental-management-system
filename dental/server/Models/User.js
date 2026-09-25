@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
+const { PASSWORD_MIN, PASSWORD_MESSAGE, isStrongPassword } = require("../utils/password");
 
 const userSchema = new mongoose.Schema(
   {
@@ -18,7 +19,16 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: [true, "Password is required"],
-      minlength: 6,
+      minlength: PASSWORD_MIN,
+      validate: {
+        // Only enforce complexity on a freshly set plaintext password; a stored
+        // bcrypt hash (unmodified on later saves) is left untouched.
+        validator: function (v) {
+          if (typeof this.isModified === "function" && !this.isModified("password")) return true;
+          return isStrongPassword(v);
+        },
+        message: PASSWORD_MESSAGE,
+      },
     },
     role: {
       type: String,
