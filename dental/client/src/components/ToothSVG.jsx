@@ -1,42 +1,16 @@
-// Condition → fill color mapping
-export const CONDITION_COLORS = {
-  healthy:            "#ffffff",
-  cavity:             "#ef4444",
-  filled:             "#60a5fa",
-  crown:              "#f59e0b",
-  missing:            "#e2e8f0",
-  implant:            "#8b5cf6",
-  "root-canal":       "#f97316",
-  bridge:             "#10b981",
-  veneer:             "#ec4899",
-  "extraction-needed":"#dc2626",
-};
-
-export const CONDITION_LABELS = {
-  healthy:            "Healthy",
-  cavity:             "Cavity",
-  filled:             "Filled",
-  crown:              "Crown",
-  missing:            "Missing",
-  implant:            "Implant",
-  "root-canal":       "Root Canal",
-  bridge:             "Bridge",
-  veneer:             "Veneer",
-  "extraction-needed":"Needs Extraction",
-};
+import { CONDITION_COLORS } from "../constants/teeth";
 
 // Upper teeth (1-16) are drawn crown-up; lower (17-32) crown-down
 // Each tooth is a simplified shape: rectangle body + rounded crown
 const ToothSVG = ({ tooth, isSelected, onClick, isUpper }) => {
-  const fill         = CONDITION_COLORS[tooth.condition] || "#ffffff";
-  const strokeColor  = isSelected ? "#2563eb" : tooth.condition === "healthy" ? "#94a3b8" : "#64748b";
-  const strokeWidth  = isSelected ? 2.5 : 1.5;
+  const fill = CONDITION_COLORS[tooth.condition] || "#ffffff";
+  const strokeColor = isSelected ? "#2563eb" : tooth.condition === "healthy" ? "#94a3b8" : "#64748b";
+  const strokeWidth = isSelected ? 2.5 : 1.5;
 
   // Molar vs premolar vs incisor shape based on tooth number
   const n = tooth.number;
-  const isMolar     = [1,2,3,14,15,16,17,18,19,30,31,32].includes(n);
-  const isPremolar  = [4,5,12,13,20,21,28,29].includes(n);
-  const isIncisor   = [6,7,8,9,10,11,22,23,24,25,26,27].includes(n);
+  const isMolar = [1, 2, 3, 14, 15, 16, 17, 18, 19, 30, 31, 32].includes(n);
+  const isPremolar = [4, 5, 12, 13, 20, 21, 28, 29].includes(n);
 
   const w = isMolar ? 22 : isPremolar ? 18 : 14;
   const h = 28;
@@ -48,23 +22,23 @@ const ToothSVG = ({ tooth, isSelected, onClick, isUpper }) => {
   const bumpH = isMolar ? 7 : isPremolar ? 6 : 5;
 
   // Upper tooth: bump on top; lower tooth: bump on bottom
-  const bodyY  = isUpper ? bumpH     : 0;
-  const bodyH  = h - bumpH;
-  const bumpY  = isUpper ? 0         : bodyH;
+  const bodyY = isUpper ? bumpH : 0;
+  const bodyH = h - bumpH;
+  const bumpY = isUpper ? 0 : bodyH;
 
   // Cusp count for molars
   const cusps = isMolar ? 4 : isPremolar ? 2 : 1;
 
   return (
-    <g
-      onClick={onClick}
-      style={{ cursor: "pointer" }}
-      className="group"
-    >
+    <g onClick={onClick} style={{ cursor: "pointer" }} className="group">
       {/* Hover highlight */}
       <rect
-        x={x - 2} y={0} width={w + 4} height={h + 4}
-        rx={4} fill="transparent"
+        x={x - 2}
+        y={0}
+        width={w + 4}
+        height={h + 4}
+        rx={4}
+        fill="transparent"
         className="group-hover:fill-blue-50 transition-colors"
       />
 
@@ -83,7 +57,10 @@ const ToothSVG = ({ tooth, isSelected, onClick, isUpper }) => {
 
       {/* Tooth body */}
       <rect
-        x={x} y={bodyY} width={w} height={bodyH}
+        x={x}
+        y={bodyY}
+        width={w}
+        height={bodyH}
         rx={3}
         fill={fill}
         stroke={strokeColor}
@@ -93,8 +70,8 @@ const ToothSVG = ({ tooth, isSelected, onClick, isUpper }) => {
 
       {/* Crown cusps */}
       {Array.from({ length: cusps }).map((_, i) => {
-        const cuspW  = w / cusps;
-        const cuspX  = x + i * cuspW + cuspW * 0.15;
+        const cuspW = w / cusps;
+        const cuspX = x + i * cuspW + cuspW * 0.15;
         const cuspWd = cuspW * 0.7;
         return (
           <rect
@@ -114,18 +91,27 @@ const ToothSVG = ({ tooth, isSelected, onClick, isUpper }) => {
       {/* Missing overlay */}
       {tooth.condition === "missing" && (
         <line
-          x1={x + 2} y1={bodyY + 2}
-          x2={x + w - 2} y2={bodyY + bodyH - 2}
-          stroke="#94a3b8" strokeWidth={1.5} strokeDasharray="3,2"
+          x1={x + 2}
+          y1={bodyY + 2}
+          x2={x + w - 2}
+          y2={bodyY + bodyH - 2}
+          stroke="#94a3b8"
+          strokeWidth={1.5}
+          strokeDasharray="3,2"
         />
       )}
 
       {/* Selected ring */}
       {isSelected && (
         <rect
-          x={x - 1} y={bodyY - 1} width={w + 2} height={bodyH + 2}
-          rx={4} fill="none"
-          stroke="#2563eb" strokeWidth={2}
+          x={x - 1}
+          y={bodyY - 1}
+          width={w + 2}
+          height={bodyH + 2}
+          rx={4}
+          fill="none"
+          stroke="#2563eb"
+          strokeWidth={2}
           strokeDasharray="4,2"
         />
       )}

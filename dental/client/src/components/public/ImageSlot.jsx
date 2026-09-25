@@ -36,12 +36,7 @@ const ImageSlot = ({
   if (display) {
     return (
       <figure className={`relative overflow-hidden ${className}`}>
-        <img
-          src={display}
-          alt={alt}
-          onError={onError}
-          className="w-full h-full object-cover"
-        />
+        <img src={display} alt={alt} onError={onError} className="w-full h-full object-cover" />
         {allowUpload && (
           <label className="absolute bottom-3 right-3 cursor-pointer rounded-full bg-clinic-ink/75 text-clinic-cream text-[10px] uppercase tracking-wider px-3 py-1.5 backdrop-blur-sm hover:bg-clinic-accent transition-colors">
             Change photo
@@ -58,8 +53,12 @@ const ImageSlot = ({
     >
       <span className="w-12 h-12 rounded-2xl bg-clinic-cream flex items-center justify-center text-clinic-accent mb-3 shadow-sm">
         <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={1.5}
+            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+          />
         </svg>
       </span>
       <span className="text-sm font-medium text-clinic-ink/80">{label}</span>

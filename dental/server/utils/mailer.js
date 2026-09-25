@@ -1,3 +1,11 @@
+const escapeHtml = (value) =>
+  String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+
 const sendEmail = async ({ to, subject, text, html }) => {
   if (!process.env.SMTP_HOST) {
     console.log(`[email preview] To: ${to} | ${subject}\n${text}`);
@@ -8,8 +16,7 @@ const sendEmail = async ({ to, subject, text, html }) => {
   try {
     nodemailer = require("nodemailer");
   } catch {
-    console.log(`[email preview] To: ${to} | ${subject}\n${text}`);
-    return;
+    throw new Error("SMTP is configured but nodemailer is not installed (run: npm install nodemailer)");
   }
 
   const transporter = nodemailer.createTransport({
@@ -27,7 +34,8 @@ const sendEmail = async ({ to, subject, text, html }) => {
     to,
     subject,
     text,
-    html: html || `<p>${text.replace(/\n/g, "<br>")}</p>`,
+    // Text can contain names typed by website visitors, so escape it before building HTML
+    html: html || `<p>${escapeHtml(text).replace(/\n/g, "<br>")}</p>`,
   });
 };
 

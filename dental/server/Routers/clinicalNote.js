@@ -1,12 +1,15 @@
 const express = require("express");
-const router  = express.Router();
+const router = express.Router();
 const { getAll, getById, create, update, remove } = require("../Controllers/clinicalNote");
-const { protect } = require("../middleware/auth");
+const { protect, requireRole } = require("../middleware/auth");
 
-router.get("/",      protect, getAll);
-router.get("/:id",   protect, getById);
-router.post("/",     protect, create);
-router.put("/:id",   protect, update);
-router.delete("/:id",protect, remove);
+// Anyone on staff can read notes; only clinicians can write them
+const clinician = requireRole("admin", "dentist");
+
+router.get("/", protect, getAll);
+router.get("/:id", protect, getById);
+router.post("/", protect, clinician, create);
+router.put("/:id", protect, clinician, update);
+router.delete("/:id", protect, clinician, remove);
 
 module.exports = router;

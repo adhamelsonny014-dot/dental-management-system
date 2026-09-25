@@ -3,8 +3,7 @@ import api from "../utils/api";
 import toast from "react-hot-toast";
 import PageHeader from "../components/PageHeader";
 
-const DAYS = ["monday","tuesday","wednesday","thursday","friday","saturday","sunday"];
-const CURRENCIES = ["USD","EUR","GBP","EGP","SAR","AED","KWD"];
+const CURRENCIES = ["USD", "EUR", "GBP", "EGP", "SAR", "AED", "KWD"];
 
 const SectionCard = ({ title, children }) => (
   <div className="card p-6 mb-5">
@@ -14,12 +13,13 @@ const SectionCard = ({ title, children }) => (
 );
 
 const Settings = () => {
-  const [clinic, setClinic]   = useState(null);
+  const [clinic, setClinic] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving]   = useState(false);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    api.get("/clinic")
+    api
+      .get("/clinic")
       .then((r) => setClinic(r.data))
       .catch(() => toast.error("Failed to load settings"))
       .finally(() => setLoading(false));
@@ -48,11 +48,12 @@ const Settings = () => {
     }
   };
 
-  if (loading) return (
-    <div className="p-8 flex justify-center">
-      <div className="w-6 h-6 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
-    </div>
-  );
+  if (loading)
+    return (
+      <div className="p-8 flex justify-center">
+        <div className="w-6 h-6 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
 
   if (!clinic) return null;
 
@@ -73,41 +74,94 @@ const Settings = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="sm:col-span-2">
             <label className="label">Clinic name</label>
-            <input className="input" name="name" value={clinic.name} onChange={handleChange} placeholder="My Dental Clinic" />
+            <input
+              className="input"
+              name="name"
+              value={clinic.name}
+              onChange={handleChange}
+              placeholder="My Dental Clinic"
+            />
           </div>
           <div>
             <label className="label">Phone</label>
-            <input className="input" name="phone" value={clinic.phone} onChange={handleChange} placeholder="+1 555 000 0000" />
+            <input
+              className="input"
+              name="phone"
+              value={clinic.phone}
+              onChange={handleChange}
+              placeholder="+1 555 000 0000"
+            />
           </div>
           <div>
             <label className="label">Email</label>
-            <input className="input" name="email" value={clinic.email} onChange={handleChange} placeholder="clinic@example.com" />
+            <input
+              className="input"
+              name="email"
+              value={clinic.email}
+              onChange={handleChange}
+              placeholder="clinic@example.com"
+            />
           </div>
           <div className="sm:col-span-2">
             <label className="label">Address</label>
-            <input className="input" name="address" value={clinic.address} onChange={handleChange} placeholder="123 Main St" />
+            <input
+              className="input"
+              name="address"
+              value={clinic.address}
+              onChange={handleChange}
+              placeholder="123 Main St"
+            />
           </div>
           <div>
             <label className="label">City</label>
-            <input className="input" name="city" value={clinic.city} onChange={handleChange} placeholder="Cairo" />
+            <input
+              className="input"
+              name="city"
+              value={clinic.city}
+              onChange={handleChange}
+              placeholder="Cairo"
+            />
           </div>
           <div>
             <label className="label">Country</label>
-            <input className="input" name="country" value={clinic.country} onChange={handleChange} placeholder="Egypt" />
+            <input
+              className="input"
+              name="country"
+              value={clinic.country}
+              onChange={handleChange}
+              placeholder="Egypt"
+            />
           </div>
           <div>
             <label className="label">Tax / VAT number</label>
-            <input className="input" name="taxNumber" value={clinic.taxNumber} onChange={handleChange} placeholder="Optional" />
+            <input
+              className="input"
+              name="taxNumber"
+              value={clinic.taxNumber}
+              onChange={handleChange}
+              placeholder="Optional"
+            />
           </div>
           <div>
             <label className="label">Currency</label>
             <select className="input" name="currency" value={clinic.currency} onChange={handleChange}>
-              {CURRENCIES.map((c) => <option key={c}>{c}</option>)}
+              {CURRENCIES.map((c) => (
+                <option key={c}>{c}</option>
+              ))}
             </select>
           </div>
           <div>
             <label className="label">Default appointment duration (minutes)</label>
-            <input className="input" type="number" name="appointmentDuration" value={clinic.appointmentDuration} onChange={handleChange} min={10} max={120} step={5} />
+            <input
+              className="input"
+              type="number"
+              name="appointmentDuration"
+              value={clinic.appointmentDuration}
+              onChange={handleChange}
+              min={10}
+              max={120}
+              step={5}
+            />
           </div>
         </div>
       </SectionCard>
@@ -126,10 +180,16 @@ const Settings = () => {
                     checked={wh.open}
                     onChange={(e) => handleHoursChange(i, "open", e.target.checked)}
                   />
-                  <div className={`w-10 h-5 rounded-full transition-colors ${wh.open ? "bg-primary-600" : "bg-slate-200"}`} />
-                  <div className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${wh.open ? "translate-x-5" : ""}`} />
+                  <div
+                    className={`w-10 h-5 rounded-full transition-colors ${wh.open ? "bg-primary-600" : "bg-slate-200"}`}
+                  />
+                  <div
+                    className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${wh.open ? "translate-x-5" : ""}`}
+                  />
                 </div>
-                <span className={`text-sm font-medium capitalize ${wh.open ? "text-slate-800" : "text-dental-muted"}`}>
+                <span
+                  className={`text-sm font-medium capitalize ${wh.open ? "text-slate-800" : "text-dental-muted"}`}
+                >
                   {wh.day}
                 </span>
               </label>

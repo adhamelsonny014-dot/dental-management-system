@@ -1,9 +1,6 @@
 import { useRef } from "react";
 import InteractiveMouth from "./InteractiveMouth";
-
-const currency = (n) => `$${Number(n || 0).toFixed(2)}`;
-const fmtDate = (d) =>
-  d ? new Date(d).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }) : "—";
+import { currency, fmtDate } from "../utils/format";
 
 const TreatmentPlanReport = ({ plan, patient, chartTeeth, onClose }) => {
   const printRef = useRef(null);
@@ -56,7 +53,7 @@ const TreatmentPlanReport = ({ plan, patient, chartTeeth, onClose }) => {
               <br />
               Dentist: {plan.dentist ? `Dr. ${plan.dentist.firstName} ${plan.dentist.lastName}` : "—"}
               <br />
-              Status: {plan.status} · Created {fmtDate(plan.createdAt)}
+              Status: {plan.status} · Created {fmtDate(plan.createdAt, "long")}
             </p>
           </header>
 
@@ -98,7 +95,9 @@ const TreatmentPlanReport = ({ plan, patient, chartTeeth, onClose }) => {
 
           <p className="total">
             Subtotal: {currency(subtotal)}
-            {discount > 0 ? ` · Discount: ${plan.discountType === "percent" ? `${discount}%` : currency(discount)}` : ""}
+            {discount > 0
+              ? ` · Discount: ${plan.discountType === "percent" ? `${discount}%` : currency(discount)}`
+              : ""}
             <br />
             Grand total: {currency(Math.max(0, grandTotal))}
           </p>

@@ -1,17 +1,25 @@
 const express = require("express");
-const router  = express.Router();
+const router = express.Router();
 const {
-  getAll, getById, create, createFromPlan,
-  update, updateStatus, remove,
+  getAll,
+  getById,
+  create,
+  createFromPlan,
+  update,
+  updateStatus,
+  remove,
 } = require("../Controllers/invoice");
-const { protect } = require("../middleware/auth");
+const { protect, requireRole } = require("../middleware/auth");
 
-router.get("/",                              protect, getAll);
-router.get("/:id",                           protect, getById);
-router.post("/",                             protect, create);
-router.post("/from-plan/:planId",            protect, createFromPlan);
-router.put("/:id",                           protect, update);
-router.patch("/:id/status",                  protect, updateStatus);
-router.delete("/:id",                        protect, remove);
+// Billing is handled by the front desk; only admins can delete
+const billing = requireRole("admin", "receptionist");
+
+router.get("/", protect, getAll);
+router.get("/:id", protect, getById);
+router.post("/", protect, billing, create);
+router.post("/from-plan/:planId", protect, billing, createFromPlan);
+router.put("/:id", protect, billing, update);
+router.patch("/:id/status", protect, billing, updateStatus);
+router.delete("/:id", protect, requireRole("admin"), remove);
 
 module.exports = router;

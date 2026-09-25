@@ -24,22 +24,22 @@ const clinicalNoteSchema = new mongoose.Schema(
       default: Date.now,
     },
     // SOAP format
-    subjective:  { type: String, default: "" }, // Patient complaints / chief complaint
-    objective:   { type: String, default: "" }, // Clinical findings / exam results
-    assessment:  { type: String, default: "" }, // Diagnosis / assessment
-    plan:        { type: String, default: "" }, // Treatment plan / next steps
+    subjective: { type: String, default: "" }, // Patient complaints / chief complaint
+    objective: { type: String, default: "" }, // Clinical findings / exam results
+    assessment: { type: String, default: "" }, // Diagnosis / assessment
+    plan: { type: String, default: "" }, // Treatment plan / next steps
 
     // Extras
-    procedures:  [{ type: String }],            // Procedures performed
+    procedures: [{ type: String }], // Procedures performed
     vitals: {
       bloodPressure: { type: String, default: "" },
-      pulse:         { type: String, default: "" },
-      temperature:   { type: String, default: "" },
+      pulse: { type: String, default: "" },
+      temperature: { type: String, default: "" },
     },
-    followUpDate:  { type: Date },
-    isPrivate:     { type: Boolean, default: false }, // hidden from patient portal
+    followUpDate: { type: Date },
+    isPrivate: { type: Boolean, default: false }, // hidden from patient portal
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 clinicalNoteSchema.index({ patient: 1, visitDate: -1 });

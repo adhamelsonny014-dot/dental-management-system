@@ -4,8 +4,13 @@ import SectionHeading from "../../components/public/SectionHeading";
 import { fetchClinic, submitContact } from "../../utils/publicApi";
 
 const DAY_LABEL = {
-  monday: "Mon", tuesday: "Tue", wednesday: "Wed", thursday: "Thu",
-  friday: "Fri", saturday: "Sat", sunday: "Sun",
+  monday: "Mon",
+  tuesday: "Tue",
+  wednesday: "Wed",
+  thursday: "Thu",
+  friday: "Fri",
+  saturday: "Sat",
+  sunday: "Sun",
 };
 
 const formatHours = (hours = []) =>
@@ -20,7 +25,9 @@ const Contact = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchClinic().then(setClinic).catch(() => {});
+    fetchClinic()
+      .then(setClinic)
+      .catch(() => {});
   }, []);
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
@@ -77,9 +84,19 @@ const Contact = () => {
             </section>
           </section>
 
-          <form onSubmit={handleSubmit} className="bg-white border border-clinic-border rounded-2xl p-6 sm:p-8 space-y-4">
+          <form
+            onSubmit={handleSubmit}
+            className="bg-white border border-clinic-border rounded-2xl p-6 sm:p-8 space-y-4"
+          >
             <Field label="Name" name="name" value={form.name} onChange={handleChange} required />
-            <Field label="Email" name="email" type="email" value={form.email} onChange={handleChange} required />
+            <Field
+              label="Email"
+              name="email"
+              type="email"
+              value={form.email}
+              onChange={handleChange}
+              required
+            />
             <Field label="Phone" name="phone" type="tel" value={form.phone} onChange={handleChange} />
             <Field label="Subject" name="subject" value={form.subject} onChange={handleChange} />
             <label className="block">

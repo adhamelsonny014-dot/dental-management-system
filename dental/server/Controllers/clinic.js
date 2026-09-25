@@ -1,32 +1,19 @@
 const Clinic = require("../Models/Clinic");
+const asyncHandler = require("../utils/asyncHandler");
+const { FIELDS, pick } = require("../utils/fields");
 
 // GET /api/clinic  — returns the single clinic document (creates it if it doesn't exist)
-const getClinic = async (req, res) => {
-  try {
-    let clinic = await Clinic.findOne();
-    if (!clinic) {
-      clinic = await Clinic.create({});
-    }
-    return res.status(200).json(clinic);
-  } catch (error) {
-    return res.status(500).json({ message: error.message });
-  }
-};
+const getClinic = asyncHandler(async (req, res) => {
+  const clinic = await Clinic.getSettings();
+  return res.status(200).json(clinic);
+});
 
 // PUT /api/clinic  — update clinic settings
-const updateClinic = async (req, res) => {
-  try {
-    let clinic = await Clinic.findOne();
-    if (!clinic) {
-      clinic = await Clinic.create(req.body);
-    } else {
-      Object.assign(clinic, req.body);
-      await clinic.save();
-    }
-    return res.status(200).json(clinic);
-  } catch (error) {
-    return res.status(500).json({ message: error.message });
-  }
-};
+const updateClinic = asyncHandler(async (req, res) => {
+  const clinic = await Clinic.getSettings();
+  Object.assign(clinic, pick(req.body, FIELDS.clinic));
+  await clinic.save();
+  return res.status(200).json(clinic);
+});
 
 module.exports = { getClinic, updateClinic };

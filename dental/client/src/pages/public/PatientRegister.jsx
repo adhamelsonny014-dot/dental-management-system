@@ -61,28 +61,70 @@ const PatientRegister = () => {
               <p className="font-display text-xl font-semibold text-emerald-900">You&apos;re registered</p>
               <p className="text-sm text-emerald-800 mt-2">{done.message}</p>
               {done.patient?.patientNumber ? (
-                <p className="text-sm font-mono mt-3 text-emerald-700">Patient ID: {done.patient.patientNumber}</p>
+                <p className="text-sm font-mono mt-3 text-emerald-700">
+                  Patient ID: {done.patient.patientNumber}
+                </p>
               ) : null}
               <Link to="/book" className="inline-block mt-6 text-sm font-medium text-blue-700 underline">
                 Request an appointment →
               </Link>
             </article>
           ) : (
-            <form onSubmit={handleSubmit} className="bg-white border border-sky-100 rounded-2xl p-6 sm:p-8 space-y-4 shadow-sm">
+            <form
+              onSubmit={handleSubmit}
+              className="bg-white border border-sky-100 rounded-2xl p-6 sm:p-8 space-y-4 shadow-sm"
+            >
               <section className="grid sm:grid-cols-2 gap-4">
-                <Field label="First name" name="firstName" value={form.firstName} onChange={handleChange} required />
-                <Field label="Last name" name="lastName" value={form.lastName} onChange={handleChange} required />
+                <Field
+                  label="First name"
+                  name="firstName"
+                  value={form.firstName}
+                  onChange={handleChange}
+                  required
+                />
+                <Field
+                  label="Last name"
+                  name="lastName"
+                  value={form.lastName}
+                  onChange={handleChange}
+                  required
+                />
               </section>
-              <Field label="Email" name="email" type="email" value={form.email} onChange={handleChange} required />
-              <Field label="Phone" name="phone" type="tel" value={form.phone} onChange={handleChange} required />
+              <Field
+                label="Email"
+                name="email"
+                type="email"
+                value={form.email}
+                onChange={handleChange}
+                required
+              />
+              <Field
+                label="Phone"
+                name="phone"
+                type="tel"
+                value={form.phone}
+                onChange={handleChange}
+                required
+              />
               <section className="grid sm:grid-cols-2 gap-4">
                 <label className="block">
                   <span className="text-sm font-medium text-slate-700">Date of birth</span>
-                  <input type="date" name="dateOfBirth" value={form.dateOfBirth} onChange={handleChange} className="mt-1 w-full border border-sky-200 rounded-lg px-3 py-2.5 text-sm" />
+                  <input
+                    type="date"
+                    name="dateOfBirth"
+                    value={form.dateOfBirth}
+                    onChange={handleChange}
+                    className="mt-1 w-full border border-sky-200 rounded-lg px-3 py-2.5 text-sm"
+                  />
                 </label>
                 <label className="block">
                   <span className="text-sm font-medium text-slate-700">Gender</span>
-                  <select name="gender" value={form.gender} onChange={handleChange} className="mt-1 w-full border border-sky-200 rounded-lg px-3 py-2.5 text-sm bg-white">
+                  <select
+                    name="gender"
+                    value={form.gender}
+                    onChange={handleChange}
+                    className="mt-1 w-full border border-sky-200 rounded-lg px-3 py-2.5 text-sm bg-white"
+                  >
                     <option value="">Prefer not to say</option>
                     <option value="male">Male</option>
                     <option value="female">Female</option>
@@ -92,9 +134,20 @@ const PatientRegister = () => {
               </section>
               <label className="block">
                 <span className="text-sm font-medium text-slate-700">Notes (optional)</span>
-                <textarea name="message" value={form.message} onChange={handleChange} rows={2} className="mt-1 w-full border border-sky-200 rounded-lg px-3 py-2.5 text-sm" placeholder="Allergies, concerns…" />
+                <textarea
+                  name="message"
+                  value={form.message}
+                  onChange={handleChange}
+                  rows={2}
+                  className="mt-1 w-full border border-sky-200 rounded-lg px-3 py-2.5 text-sm"
+                  placeholder="Allergies, concerns…"
+                />
               </label>
-              <button type="submit" disabled={loading} className="w-full bg-gradient-to-r from-blue-600 to-sky-500 text-white py-3.5 rounded-full text-sm font-semibold disabled:opacity-60">
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-blue-600 to-sky-500 text-white py-3.5 rounded-full text-sm font-semibold disabled:opacity-60"
+              >
                 {loading ? "Registering…" : "Register"}
               </button>
             </form>
@@ -108,7 +161,14 @@ const PatientRegister = () => {
 const Field = ({ label, name, value, onChange, type = "text", required }) => (
   <label className="block">
     <span className="text-sm font-medium text-slate-700">{label}</span>
-    <input type={type} name={name} value={value} onChange={onChange} required={required} className="mt-1 w-full border border-sky-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-400/40" />
+    <input
+      type={type}
+      name={name}
+      value={value}
+      onChange={onChange}
+      required={required}
+      className="mt-1 w-full border border-sky-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-400/40"
+    />
   </label>
 );
 

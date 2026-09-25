@@ -9,22 +9,22 @@ import ConfirmModal from "../components/ConfirmModal";
 const PatientList = () => {
   const navigate = useNavigate();
 
-  const [patients,    setPatients]    = useState([]);
-  const [total,       setTotal]       = useState(0);
-  const [totalPages,  setTotalPages]  = useState(1);
-  const [page,        setPage]        = useState(1);
-  const [loading,     setLoading]     = useState(true);
-  const [search,      setSearch]      = useState("");
+  const [patients, setPatients] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [deleteTarget, setDeleteTarget] = useState(null);
-  const [deleting,    setDeleting]    = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const fetchPatients = useCallback(async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams({ page, limit: 15 });
       if (search.trim()) params.set("search", search.trim());
-      if (statusFilter)  params.set("status", statusFilter);
+      if (statusFilter) params.set("status", statusFilter);
 
       const res = await api.get(`/patients?${params}`);
       setPatients(res.data.patients);
@@ -37,10 +37,14 @@ const PatientList = () => {
     }
   }, [page, search, statusFilter]);
 
-  useEffect(() => { fetchPatients(); }, [fetchPatients]);
+  useEffect(() => {
+    fetchPatients();
+  }, [fetchPatients]);
 
   // Debounce search
-  useEffect(() => { setPage(1); }, [search, statusFilter]);
+  useEffect(() => {
+    setPage(1);
+  }, [search, statusFilter]);
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
@@ -75,8 +79,18 @@ const PatientList = () => {
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3 mb-5">
         <div className="relative flex-1">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dental-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          <svg
+            className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dental-muted"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
           </svg>
           <input
             className="input pl-9"
@@ -134,7 +148,7 @@ const PatientList = () => {
       <ConfirmModal
         isOpen={!!deleteTarget}
         title="Delete patient"
-        message={`Are you sure you want to delete ${deleteTarget?.firstName} ${deleteTarget?.lastName}? This action cannot be undone.`}
+        message={`Delete ${deleteTarget?.firstName} ${deleteTarget?.lastName}? Their appointments, dental chart, clinical notes, treatment plans, prescriptions, invoices and payments will also be deleted. This cannot be undone.`}
         onConfirm={handleDelete}
         onCancel={() => setDeleteTarget(null)}
         loading={deleting}

@@ -5,6 +5,7 @@ const {
   listBookingRequests,
   sendToDoctor,
   assignDentist,
+  scheduleRequest,
   doctorResponse,
   confirmPatient,
   cancelRequest,
@@ -13,6 +14,7 @@ const {
 router.get("/", protect, listBookingRequests);
 router.patch("/:id/send-to-doctor", protect, requireRole("admin", "receptionist"), sendToDoctor);
 router.patch("/:id/assign", protect, requireRole("admin", "receptionist"), assignDentist);
+router.patch("/:id/schedule", protect, requireRole("admin", "receptionist"), scheduleRequest);
 router.patch("/:id/doctor-response", protect, requireRole("admin", "dentist"), doctorResponse);
 router.patch("/:id/confirm-patient", protect, requireRole("admin", "receptionist"), confirmPatient);
 router.patch("/:id/cancel", protect, requireRole("admin", "receptionist"), cancelRequest);

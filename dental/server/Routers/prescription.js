@@ -1,13 +1,15 @@
 const express = require("express");
-const router  = express.Router();
+const router = express.Router();
 const { getAll, getById, create, update, dispense, remove } = require("../Controllers/prescription");
-const { protect } = require("../middleware/auth");
+const { protect, requireRole } = require("../middleware/auth");
 
-router.get("/",                protect, getAll);
-router.get("/:id",             protect, getById);
-router.post("/",               protect, create);
-router.put("/:id",             protect, update);
-router.patch("/:id/dispense",  protect, dispense);
-router.delete("/:id",          protect, remove);
+const clinician = requireRole("admin", "dentist");
+
+router.get("/", protect, getAll);
+router.get("/:id", protect, getById);
+router.post("/", protect, clinician, create);
+router.put("/:id", protect, clinician, update);
+router.patch("/:id/dispense", protect, requireRole("admin", "dentist", "assistant"), dispense);
+router.delete("/:id", protect, clinician, remove);
 
 module.exports = router;

@@ -75,9 +75,23 @@ const MiniCompare = ({ before, after, active }) => {
   const [pos] = useState(45);
   return (
     <span className="relative block w-full h-full bg-clinic-stone">
-      <img src={after} alt="" className="absolute inset-0 w-full h-full object-cover" onError={(e) => { e.target.style.display = "none"; }} />
+      <img
+        src={after}
+        alt=""
+        className="absolute inset-0 w-full h-full object-cover"
+        onError={(e) => {
+          e.target.style.display = "none";
+        }}
+      />
       <span className="absolute inset-0 overflow-hidden" style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }}>
-        <img src={before} alt="" className="w-full h-full object-cover" onError={(e) => { e.target.style.display = "none"; }} />
+        <img
+          src={before}
+          alt=""
+          className="w-full h-full object-cover"
+          onError={(e) => {
+            e.target.style.display = "none";
+          }}
+        />
       </span>
       {!before && !after && (
         <span className="absolute inset-0 flex items-center justify-center text-[8px] text-clinic-muted uppercase tracking-wider p-1 text-center">

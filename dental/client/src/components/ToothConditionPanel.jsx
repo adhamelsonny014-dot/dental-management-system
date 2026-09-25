@@ -1,43 +1,54 @@
-import { useState, useEffect } from "react";
-import { CONDITION_COLORS, CONDITION_LABELS } from "./ToothSVG";
+import { useState } from "react";
+// Rendered with key={tooth.number}, so state starts fresh for each selected tooth
+import { CONDITION_COLORS, CONDITION_LABELS } from "../constants/teeth";
 
-const CONDITIONS   = Object.keys(CONDITION_COLORS);
-const SURFACES_ALL = ["mesial","distal","buccal","lingual","occlusal","incisal"];
+const CONDITIONS = Object.keys(CONDITION_COLORS);
+const SURFACES_ALL = ["mesial", "distal", "buccal", "lingual", "occlusal", "incisal"];
 
 // Standard dental tooth names
 const TOOTH_NAMES = {
-  1:"Upper Right 3rd Molar",2:"Upper Right 2nd Molar",3:"Upper Right 1st Molar",
-  4:"Upper Right 2nd Premolar",5:"Upper Right 1st Premolar",6:"Upper Right Canine",
-  7:"Upper Right Lateral Incisor",8:"Upper Right Central Incisor",
-  9:"Upper Left Central Incisor",10:"Upper Left Lateral Incisor",
-  11:"Upper Left Canine",12:"Upper Left 1st Premolar",13:"Upper Left 2nd Premolar",
-  14:"Upper Left 1st Molar",15:"Upper Left 2nd Molar",16:"Upper Left 3rd Molar",
-  17:"Lower Left 3rd Molar",18:"Lower Left 2nd Molar",19:"Lower Left 1st Molar",
-  20:"Lower Left 2nd Premolar",21:"Lower Left 1st Premolar",22:"Lower Left Canine",
-  23:"Lower Left Lateral Incisor",24:"Lower Left Central Incisor",
-  25:"Lower Right Central Incisor",26:"Lower Right Lateral Incisor",
-  27:"Lower Right Canine",28:"Lower Right 1st Premolar",29:"Lower Right 2nd Premolar",
-  30:"Lower Right 1st Molar",31:"Lower Right 2nd Molar",32:"Lower Right 3rd Molar",
+  1: "Upper Right 3rd Molar",
+  2: "Upper Right 2nd Molar",
+  3: "Upper Right 1st Molar",
+  4: "Upper Right 2nd Premolar",
+  5: "Upper Right 1st Premolar",
+  6: "Upper Right Canine",
+  7: "Upper Right Lateral Incisor",
+  8: "Upper Right Central Incisor",
+  9: "Upper Left Central Incisor",
+  10: "Upper Left Lateral Incisor",
+  11: "Upper Left Canine",
+  12: "Upper Left 1st Premolar",
+  13: "Upper Left 2nd Premolar",
+  14: "Upper Left 1st Molar",
+  15: "Upper Left 2nd Molar",
+  16: "Upper Left 3rd Molar",
+  17: "Lower Left 3rd Molar",
+  18: "Lower Left 2nd Molar",
+  19: "Lower Left 1st Molar",
+  20: "Lower Left 2nd Premolar",
+  21: "Lower Left 1st Premolar",
+  22: "Lower Left Canine",
+  23: "Lower Left Lateral Incisor",
+  24: "Lower Left Central Incisor",
+  25: "Lower Right Central Incisor",
+  26: "Lower Right Lateral Incisor",
+  27: "Lower Right Canine",
+  28: "Lower Right 1st Premolar",
+  29: "Lower Right 2nd Premolar",
+  30: "Lower Right 1st Molar",
+  31: "Lower Right 2nd Molar",
+  32: "Lower Right 3rd Molar",
 };
 
 const ToothConditionPanel = ({ tooth, onUpdate, saving }) => {
   const [condition, setCondition] = useState(tooth.condition);
-  const [surfaces,  setSurfaces]  = useState(tooth.surfaces || []);
-  const [notes,     setNotes]     = useState(tooth.notes || "");
-  const [dirty,     setDirty]     = useState(false);
-
-  // Reset when a different tooth is selected
-  useEffect(() => {
-    setCondition(tooth.condition);
-    setSurfaces(tooth.surfaces || []);
-    setNotes(tooth.notes || "");
-    setDirty(false);
-  }, [tooth.number]);
+  const [surfaces, setSurfaces] = useState(tooth.surfaces || []);
+  const [notes, setNotes] = useState(tooth.notes || "");
+  const [dirty, setDirty] = useState(false);
 
   const toggleSurface = (s) => {
-    setSurfaces((prev) =>
-      prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]
-    );
+    setSurfaces((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]));
     setDirty(true);
   };
 
@@ -94,9 +105,11 @@ const ToothConditionPanel = ({ tooth, onUpdate, saving }) => {
       </div>
 
       {/* Surface selector (only relevant when not missing/implant) */}
-      {!["missing","implant"].includes(condition) && (
+      {!["missing", "implant"].includes(condition) && (
         <div className="mb-4">
-          <p className="text-xs font-semibold text-dental-muted uppercase tracking-wide mb-2">Affected surfaces</p>
+          <p className="text-xs font-semibold text-dental-muted uppercase tracking-wide mb-2">
+            Affected surfaces
+          </p>
           <div className="flex flex-wrap gap-1.5">
             {SURFACES_ALL.map((s) => (
               <button
@@ -122,7 +135,10 @@ const ToothConditionPanel = ({ tooth, onUpdate, saving }) => {
           className="input resize-none text-sm w-full"
           rows={3}
           value={notes}
-          onChange={(e) => { setNotes(e.target.value); setDirty(true); }}
+          onChange={(e) => {
+            setNotes(e.target.value);
+            setDirty(true);
+          }}
           placeholder="Clinical notes for this tooth..."
         />
       </div>
@@ -130,9 +146,7 @@ const ToothConditionPanel = ({ tooth, onUpdate, saving }) => {
       {/* Save button */}
       <button
         className={`w-full py-2 rounded-lg text-sm font-medium transition-all ${
-          dirty
-            ? "btn-primary"
-            : "bg-slate-100 text-slate-400 cursor-default"
+          dirty ? "btn-primary" : "bg-slate-100 text-slate-400 cursor-default"
         }`}
         onClick={handleSave}
         disabled={!dirty || saving}

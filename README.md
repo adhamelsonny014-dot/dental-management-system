@@ -1,75 +1,183 @@
 # DentalCare — Dental Management System
 
-A full-stack web application for managing a dental clinic. Built with the MERN stack (MongoDB, Express, React, Node.js).
+A full-stack web application for running a dental clinic: patients, appointments, an interactive dental chart, clinical notes, treatment plans, prescriptions, billing, reports, and a public booking website. Built on the **MERN** stack (MongoDB, Express, React, Node.js).
+
+![Dashboard](docs/screenshots/03-dashboard.png)
 
 ---
 
-## Table of contents
+## Contents
 
+- [Screenshots](#screenshots)
+- [Try it (demo login)](#try-it-demo-login)
 - [Features](#features)
 - [Tech stack](#tech-stack)
-- [Project structure](#project-structure)
 - [Getting started](#getting-started)
 - [Environment variables](#environment-variables)
+- [Testing & code quality](#testing--code-quality)
+- [Project structure](#project-structure)
 - [API reference](#api-reference)
-- [Pages & modules](#pages--modules)
-- [Data models](#data-models)
 - [Roles & permissions](#roles--permissions)
+- [Data models](#data-models)
 - [Key design decisions](#key-design-decisions)
+
+---
+
+## Screenshots
+
+| Interactive dental chart | Reports & analytics |
+|---|---|
+| ![Dental chart](docs/screenshots/10-dental-chart.png) | ![Reports](docs/screenshots/06-reports.png) |
+
+| Invoices & billing | Appointment calendar |
+|---|---|
+| ![Invoices](docs/screenshots/07-invoices.png) | ![Appointments](docs/screenshots/05-appointments.png) |
+
+| Patients | Web bookings |
+|---|---|
+| ![Patients](docs/screenshots/04-patients.png) | ![Web bookings](docs/screenshots/08-web-bookings.png) |
+
+| Public website | Staff login |
+|---|---|
+| ![Public site](docs/screenshots/01-public-home.png) | ![Login](docs/screenshots/02-login.png) |
+
+---
+
+## Try it (demo login)
+
+There is **no public sign-up** — staff logins are created by an admin. The first admin is created
+automatically on server start from two env vars, so to get a working login set these in `server/.env`:
+
+```env
+SEED_ADMIN_EMAIL=admin@smilecare.com
+SEED_ADMIN_PASSWORD=Admin123!
+```
+
+Start the server, open `http://localhost:5173/login`, and sign in with:
+
+| Email | Password | Role |
+|-------|----------|------|
+| `admin@smilecare.com` | `Admin123!` | Admin |
+
+From there the admin creates logins for other staff under **Login Accounts** and **Staff**.
+(These are demo credentials for local use — always use a strong password in a real deployment.)
 
 ---
 
 ## Features
 
-**Patient management** — searchable patient list with full profiles, medical history, allergies, medications, emergency contacts, and document tabs.
+**Clinic portal**
 
-**Appointment calendar** — FullCalendar-powered day/week/month view per dentist, drag-and-drop booking, 6 appointment statuses, per-dentist color coding.
+- **Patient management** — searchable, paginated list with full profiles: medical history, allergies, medications, emergency contacts.
+- **Appointment calendar** — FullCalendar day/week/month view per dentist, booking and detail modals, 6 statuses, per-dentist colours, double-booking prevention.
+- **Waiting room** — today's queue with one-click status flow (Scheduled → Confirmed → In Progress → Completed), auto-refreshing.
+- **Interactive 32-tooth dental chart** — SVG chart with 10 condition types (healthy, cavity, filled, crown, missing, implant, root-canal, bridge, veneer, extraction-needed) and per-surface annotations.
+- **SOAP clinical notes** — structured Subjective / Objective / Assessment / Plan notes linked to appointments, with procedures, vitals, and follow-up dates.
+- **Treatment plans** — multi-procedure plans with cost estimates, per-procedure status, discounts, and approval; one click turns a plan into an invoice.
+- **Prescriptions** — printable prescriptions with medication, dosage, frequency, duration, and dispensing tracking.
+- **Invoices & payments** — full billing lifecycle (draft → sent → partial → paid), tax/discount/insurance, printable invoice, payment recording, and automatic status recalculation.
+- **Reports & analytics** — KPI tiles plus Recharts graphs (monthly revenue, appointments by month/type, patient growth, revenue by dentist, payment methods, top procedures) over a configurable date range.
+- **Notifications** — in-app and email notifications, with appointment reminders. Records honestly reflect delivery (sent / pending / failed).
 
-**Waiting room** — real-time today's queue with one-click status flow (Scheduled → Confirmed → In Progress → Completed), auto-refresh every 60 seconds.
+**Public website**
 
-**Staff management** — add dentists and staff with roles, specializations, per-day schedules, and calendar colors.
-
-**32-tooth dental chart** — interactive SVG chart with 10 condition types (healthy, cavity, filled, crown, missing, implant, root canal, bridge, veneer, extraction-needed) and per-surface annotations.
-
-**SOAP clinical notes** — structured Subjective/Objective/Assessment/Plan notes linked to appointments, with procedure tagging, vitals, and follow-up dates.
-
-**Treatment plans** — multi-procedure plans with cost estimates, per-procedure status tracking, discount and approval workflow.
-
-**Prescriptions** — printable prescriptions with medication name, dosage, frequency, duration, and dispensing tracking.
-
-**Invoices & payments** — full billing lifecycle from draft → sent → partial → paid, auto-populate from treatment plans, printable invoice PDF, payment recording (cash/card/bank-transfer/insurance/cheque), payment reversal.
-
-**Notifications** — in-app, email, and SMS notification records with appointment reminder auto-generation.
-
-**Reports & analytics** — 8 charts powered by Recharts: monthly revenue, appointment trends, type distribution, patient growth, revenue by dentist, payment methods, and top procedures. All charts respond to a configurable date range.
+- Marketing pages (home, about, services, doctors, contact) plus **online booking** and **patient self-registration**.
+- Website bookings flow through the clinic: front desk assigns a dentist → dentist approves → front desk confirms and the patient is emailed. Availability is checked against the dentist's schedule and existing appointments.
 
 ---
 
 ## Tech stack
 
-### Backend
-| Package | Version | Purpose |
-|---------|---------|---------|
-| Node.js | ≥ 18 | Runtime |
-| Express | ^4.21 | HTTP server & routing |
-| Mongoose | ^8.13 | MongoDB ODM |
-| bcryptjs | ^2.4 | Password hashing |
-| jsonwebtoken | ^9.0 | JWT authentication |
-| dotenv | ^16.4 | Environment variables |
-| cors | ^2.8 | Cross-origin requests |
-| nodemon | ^3.1 | Dev auto-restart |
+**Backend:** Node.js, Express, Mongoose (MongoDB), JWT (`jsonwebtoken`) + `bcryptjs`, `helmet`, `express-rate-limit`, `nodemailer`, `dotenv`, `cors`. Tests: Node's built-in test runner + `supertest` + `mongodb-memory-server`.
 
-### Frontend
-| Package | Version | Purpose |
-|---------|---------|---------|
-| React | ^19.0 | UI framework |
-| Vite | ^6.2 | Build tool & dev server |
-| React Router DOM | ^7.4 | Client-side routing |
-| Axios | ^1.8 | HTTP client with interceptors |
-| Tailwind CSS | ^3.4 | Utility-first styling |
-| FullCalendar | ^6.1 | Appointment calendar |
-| Recharts | ^2.12 | Analytics charts |
-| react-hot-toast | ^2.4 | Toast notifications |
+**Frontend:** React 19, Vite, React Router, Axios, Tailwind CSS, FullCalendar, Recharts, react-hot-toast.
+
+**Tooling:** ESLint 9 (flat config) and Prettier on both packages.
+
+---
+
+## Getting started
+
+### Prerequisites
+- Node.js 18+
+- MongoDB (local or Atlas)
+- npm
+
+### 1. Clone
+```bash
+git clone https://github.com/adhamelsonny014-dot/dental-management-system.git
+cd dental-management-system/dental
+```
+
+### 2. Server
+```bash
+cd server
+npm install
+cp .env.example .env     # then edit .env (see below)
+npm run dev              # http://localhost:4000
+```
+
+### 3. Client
+```bash
+cd ../client
+npm install
+npm run dev              # http://localhost:5173
+```
+
+The Vite dev server proxies `/api` to the backend, so no client config is needed. Sign in with the
+[demo login](#try-it-demo-login) above.
+
+---
+
+## Environment variables
+
+Create `server/.env` (a template is in `server/.env.example`):
+
+```env
+PORT=4000
+MONGO_URI=mongodb://localhost:27017/dental_management
+JWT_SECRET=change_this_to_a_long_random_string
+CLIENT_URL=http://localhost:5173
+SEED_ADMIN_EMAIL=admin@smilecare.com
+SEED_ADMIN_PASSWORD=Admin123!
+```
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `PORT` | Server port | `4000` |
+| `MONGO_URI` | MongoDB connection string | *(required)* |
+| `JWT_SECRET` | Secret for signing JWTs | *(required)* |
+| `CLIENT_URL` | Frontend origin for CORS | `http://localhost:5173` |
+| `SEED_ADMIN_EMAIL` | Admin created on first start | `admin@smilecare.com` |
+| `SEED_ADMIN_PASSWORD` | Password for that admin (no admin created if empty) | — |
+| `SEED_DOCTOR_PASSWORD` | Password for the two demo doctor logins (random & printed to the log if empty) | — |
+| `SMTP_HOST` … `SMTP_FROM` | Optional SMTP settings; patient emails are sent when set | — |
+
+The server refuses to start if `MONGO_URI` or `JWT_SECRET` is missing, and connects to the database before it accepts requests.
+
+---
+
+## Testing & code quality
+
+```bash
+cd server
+npm test          # 28 API tests on a throwaway in-memory MongoDB
+npm run lint      # ESLint
+npm run format    # Prettier
+
+cd ../client
+npm run lint
+npm run build
+```
+
+The server test suite (`server/tests/api.test.js`) spins up a real in-memory MongoDB and exercises the
+Express app end-to-end: authentication and role guards, error codes, patient numbering and cascade
+delete, the billing lifecycle, report totals, the full website-booking flow, and notification delivery.
+
+**Security measures:** `helmet` headers; rate limits on login and the public forms; a per-model field
+allowlist so requests can't set server-managed fields (`patientNumber`, `receiptNumber`, `createdBy`,
+`role`); role-based route guards; dentists scoped to their own patients; bcrypt password hashing; and
+HTML-escaped emails. See [`SECURITY_ASSESSMENT.md`](dental/SECURITY_ASSESSMENT.md) for a source review.
 
 ---
 
@@ -78,444 +186,114 @@ A full-stack web application for managing a dental clinic. Built with the MERN s
 ```
 dental/
 ├── server/
-│   ├── Controllers/
-│   │   ├── auth.js
-│   │   ├── clinic.js
-│   │   ├── patient.js
-│   │   ├── staff.js
-│   │   ├── appointment.js
-│   │   ├── notification.js
-│   │   ├── dentalChart.js
-│   │   ├── clinicalNote.js
-│   │   ├── treatmentPlan.js
-│   │   ├── prescription.js
-│   │   ├── invoice.js
-│   │   ├── payment.js
-│   │   └── reports.js
-│   ├── Models/
-│   │   ├── User.js
-│   │   ├── Clinic.js
-│   │   ├── Patient.js
-│   │   ├── Staff.js
-│   │   ├── Appointment.js
-│   │   ├── Notification.js
-│   │   ├── DentalChart.js
-│   │   ├── ClinicalNote.js
-│   │   ├── TreatmentPlan.js
-│   │   ├── Prescription.js
-│   │   ├── Invoice.js
-│   │   └── Payment.js
-│   ├── Routers/
-│   │   └── (one file per controller)
-│   ├── middleware/
-│   │   └── auth.js          # JWT protect + requireRole
+│   ├── app.js                 # Express app: middleware, routes, error handling
+│   ├── index.js               # Startup: env check → DB connect → listen
 │   ├── database.js
-│   ├── index.js
-│   ├── .env
-│   └── package.json
+│   ├── Models/                # Mongoose schemas (User, Patient, Staff, Appointment, …, Counter)
+│   ├── Controllers/           # One controller per resource
+│   ├── Routers/               # One router per resource (role guards live here)
+│   ├── middleware/
+│   │   ├── auth.js            # JWT protect + requireRole
+│   │   └── errorHandler.js    # notFound + central error handler
+│   ├── utils/                 # asyncHandler, paginate, fields (allowlist), sequence,
+│   │   │                      # slots, appointmentValidation, dentistScope, notify, mailer
+│   ├── seed/featuredDoctors.js
+│   └── tests/api.test.js
 │
 └── client/
     ├── src/
-    │   ├── pages/
-    │   │   ├── Login.jsx
-    │   │   ├── Register.jsx
-    │   │   ├── Dashboard.jsx
-    │   │   ├── Settings.jsx
-    │   │   ├── PatientList.jsx
-    │   │   ├── PatientProfile.jsx
-    │   │   ├── AddEditPatient.jsx
-    │   │   ├── StaffManagement.jsx
-    │   │   ├── AppointmentCalendar.jsx
-    │   │   ├── WaitingRoom.jsx
-    │   │   ├── Notifications.jsx
-    │   │   ├── DentalChart.jsx
-    │   │   ├── ClinicalNotes.jsx
-    │   │   ├── TreatmentPlan.jsx
-    │   │   ├── Prescriptions.jsx
-    │   │   ├── Invoices.jsx
-    │   │   ├── Payments.jsx
-    │   │   └── Reports.jsx
-    │   ├── components/
-    │   │   ├── Sidebar.jsx
-    │   │   ├── AppLayout.jsx
-    │   │   ├── PrivateRoute.jsx
-    │   │   ├── PageHeader.jsx
-    │   │   ├── ConfirmModal.jsx
-    │   │   ├── StatusBadge.jsx
-    │   │   ├── PatientTable.jsx
-    │   │   ├── PatientForm.jsx
-    │   │   ├── TagInput.jsx
-    │   │   ├── BookAppointmentModal.jsx
-    │   │   ├── AppointmentDetailModal.jsx
-    │   │   ├── ToothSVG.jsx
-    │   │   ├── ToothConditionPanel.jsx
-    │   │   └── SOAPForm.jsx
-    │   ├── context/
-    │   │   └── AuthContext.jsx
-    │   ├── utils/
-    │   │   └── api.js         # Axios instance with JWT interceptor
-    │   ├── App.jsx
-    │   ├── main.jsx
-    │   └── index.css
-    ├── index.html
-    ├── vite.config.js
-    ├── tailwind.config.js
-    └── package.json
+    │   ├── pages/             # Route-level pages (staff portal + public/)
+    │   ├── components/        # Shared UI + per-feature folders
+    │   │   │                  #   invoices/, treatmentPlans/, prescriptions/, public/
+    │   ├── hooks/             # useDentists, usePatient, useClinic
+    │   ├── constants/teeth.js
+    │   ├── context/AuthContext.jsx
+    │   ├── utils/             # api.js (Axios + JWT), format.js
+    │   └── App.jsx            # Routes, lazy-loaded pages
+    ├── eslint.config.js
+    └── vite.config.js
 ```
-
----
-
-## Getting started
-
-### Prerequisites
-
-- Node.js 18 or higher
-- MongoDB (local or Atlas)
-- npm
-
-### 1. Clone / extract the project
-
-```bash
-unzip dental_session8.zip
-cd dental
-```
-
-### 2. Set up the server
-
-```bash
-cd server
-npm install
-```
-
-Copy the example env file and fill in your values:
-
-```bash
-cp .env .env.local
-```
-
-Edit `.env` — see [Environment variables](#environment-variables) below.
-
-```bash
-npm run dev       # starts on http://localhost:4000
-```
-
-### 3. Set up the client
-
-```bash
-cd ../client
-npm install
-npm run dev       # starts on http://localhost:5173
-```
-
-### 4. Create your first admin account
-
-Visit `http://localhost:5173/register` and create an account with role **admin**.
-
-Or POST directly:
-
-```bash
-curl -X POST http://localhost:4000/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Dr. Ahmed Hassan","email":"admin@clinic.com","password":"password123","role":"admin"}'
-```
-
----
-
-## Environment variables
-
-Create a `.env` file inside `server/`:
-
-```env
-PORT=4000
-MONGO_URI=mongodb://localhost:27017/dental_management
-JWT_SECRET=your_super_secret_key_change_this_in_production
-CLIENT_URL=http://localhost:5173
-```
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `PORT` | Server port | `4000` |
-| `MONGO_URI` | MongoDB connection string | — |
-| `JWT_SECRET` | Secret for signing JWT tokens — **change this** | — |
-| `CLIENT_URL` | Frontend origin for CORS | `http://localhost:5173` |
 
 ---
 
 ## API reference
 
-All protected routes require the header:
-```
-Authorization: Bearer <token>
-```
+All protected routes require `Authorization: Bearer <token>`. "Auth" shows the minimum role.
 
 ### Authentication — `/api/auth`
-
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
-| POST | `/register` | No | Create user account |
-| POST | `/login` | No | Get JWT token |
-| GET | `/me` | Yes | Get current user |
+| POST | `/login` | — | Get a JWT |
+| GET | `/me` | Any | Current user |
+| POST | `/admin/create-account` | Admin | Create a staff login |
+| GET / PUT / DELETE | `/admin/accounts[/:id]` | Admin | List / update / delete logins |
 
-### Clinic — `/api/clinic`
-
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| GET | `/` | Yes | Get clinic settings |
-| PUT | `/` | Admin | Update clinic settings |
-
-### Patients — `/api/patients`
-
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| GET | `/?search=&page=&limit=&status=` | Yes | List patients (paginated, searchable) |
-| GET | `/:id` | Yes | Get single patient |
-| POST | `/` | Yes | Create patient |
-| PUT | `/:id` | Yes | Update patient |
-| DELETE | `/:id` | Admin/Dentist | Delete patient |
-
-### Staff — `/api/staff`
-
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| GET | `/?role=&active=` | Yes | List staff |
-| GET | `/:id` | Yes | Get staff member |
-| POST | `/` | Admin | Add staff member |
-| PUT | `/:id` | Admin | Update staff member |
-| DELETE | `/:id` | Admin | Remove staff member |
-
-### Appointments — `/api/appointments`
-
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| GET | `/?dentist=&patient=&start=&end=&today=true` | Yes | List appointments |
-| GET | `/:id` | Yes | Get appointment |
-| POST | `/` | Yes | Book appointment |
-| PUT | `/:id` | Yes | Update appointment |
-| PATCH | `/:id/status` | Yes | Update status only |
-| DELETE | `/:id` | Yes | Delete appointment |
-
-### Dental chart — `/api/dental-chart`
-
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| GET | `/:patientId` | Yes | Get chart (auto-creates if missing) |
-| PATCH | `/:patientId/tooth` | Yes | Update single tooth |
-| PATCH | `/:patientId/notes` | Yes | Update chart notes |
-
-### Clinical notes — `/api/clinical-notes`
-
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| GET | `/?patient=&appointment=&page=&limit=` | Yes | List notes |
-| GET | `/:id` | Yes | Get note |
-| POST | `/` | Yes | Create SOAP note |
-| PUT | `/:id` | Yes | Update note |
-| DELETE | `/:id` | Yes | Delete note |
-
-### Treatment plans — `/api/treatment-plans`
-
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| GET | `/?patient=&status=` | Yes | List plans |
-| GET | `/:id` | Yes | Get plan |
-| POST | `/` | Yes | Create plan |
-| PUT | `/:id` | Yes | Update plan |
-| PATCH | `/:id/status` | Yes | Update plan status |
-| PATCH | `/:id/procedure/:procId` | Yes | Update single procedure |
-| DELETE | `/:id` | Yes | Delete plan |
-
-### Prescriptions — `/api/prescriptions`
-
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| GET | `/?patient=&page=&limit=` | Yes | List prescriptions |
-| GET | `/:id` | Yes | Get prescription |
-| POST | `/` | Yes | Create prescription |
-| PUT | `/:id` | Yes | Update prescription |
-| PATCH | `/:id/dispense` | Yes | Mark as dispensed |
-| DELETE | `/:id` | Yes | Delete prescription |
-
-### Invoices — `/api/invoices`
-
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| GET | `/?patient=&status=&page=&limit=` | Yes | List invoices |
-| GET | `/:id` | Yes | Get invoice with payments |
-| POST | `/` | Yes | Create invoice manually |
-| POST | `/from-plan/:planId` | Yes | Auto-create from treatment plan |
-| PUT | `/:id` | Yes | Update invoice |
-| PATCH | `/:id/status` | Yes | Update status |
-| DELETE | `/:id` | Yes | Delete invoice + payments |
-
-### Payments — `/api/payments`
-
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| GET | `/?patient=&invoice=&page=&limit=` | Yes | List payments |
-| POST | `/` | Yes | Record payment (auto-syncs invoice status) |
-| DELETE | `/:id` | Yes | Reverse payment (auto-syncs invoice status) |
-
-### Notifications — `/api/notifications`
-
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| GET | `/?status=&channel=&page=&limit=` | Yes | List notifications |
-| GET | `/unread-count` | Yes | Get unread badge count |
-| POST | `/` | Yes | Create notification |
-| POST | `/send-reminder/:appointmentId` | Yes | Auto-send appointment reminder |
-| PATCH | `/:id/read` | Yes | Mark as read |
-| PATCH | `/mark-all-read` | Yes | Mark all as read |
-| DELETE | `/:id` | Yes | Delete notification |
-
-### Reports — `/api/reports`
-
-All report endpoints accept `?start=YYYY-MM-DD&end=YYYY-MM-DD`.
-
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| GET | `/overview` | Yes | 12 KPI numbers |
-| GET | `/revenue-by-month` | Yes | Monthly revenue vs invoiced |
-| GET | `/appointments-by-month` | Yes | Appointments by status per month |
-| GET | `/appointments-by-type` | Yes | Pie distribution by type |
-| GET | `/patients-growth` | Yes | New patients + cumulative total |
-| GET | `/revenue-by-dentist` | Yes | Revenue per practitioner |
-| GET | `/payment-methods` | Yes | Breakdown by payment method |
-| GET | `/top-procedures` | Yes | Top 10 invoice line items |
-
----
-
-## Pages & modules
-
-| Page | Route | Description |
-|------|-------|-------------|
-| Login | `/login` | Split-panel sign-in with clinic branding |
-| Register | `/register` | Account creation with role selection |
-| Dashboard | `/dashboard` | Live KPIs, today's appointments, quick actions |
-| Settings | `/settings` | Clinic info, working hours, currency |
-| Patient list | `/patients` | Searchable, filterable, paginated table |
-| Patient profile | `/patients/:id` | Tabs: overview, medical history, documents |
-| Add/Edit patient | `/patients/new` or `/:id/edit` | Full registration form with tag inputs |
-| Staff | `/staff` | Card grid with drawer editor and schedule |
-| Appointments | `/appointments` | FullCalendar with booking + detail modals |
-| Waiting room | `/waiting-room` | Today's queue with status action buttons |
-| Notifications | `/notifications` | History log with compose modal |
-| Dental chart | `/dental-chart/:patientId` | 32-tooth SVG with condition panel |
-| Clinical notes | `/clinical-notes/:patientId` | SOAP notes with expandable history |
-| Treatment plan | `/treatment-plan/:patientId` | Procedure table with cost estimates |
-| Prescriptions | `/prescriptions/:patientId` | Rx list with printable view |
-| Invoices | `/invoices` | Global invoice table with payment modal |
-| Payments | `/payments` | Payment history with reversal guard |
-| Reports | `/reports` | 8 Recharts analytics with date range |
-
----
-
-## Data models
-
-### User
-Fields: `name`, `email`, `password` (hashed), `role` (admin / dentist / receptionist / assistant), `isActive`, `lastLogin`
-
-### Patient
-Fields: `firstName`, `lastName`, `dateOfBirth`, `gender`, `phone`, `email`, `address`, `emergencyContact`, `bloodType`, `allergies[]`, `medications[]`, `conditions[]`, `medicalNotes`, `patientNumber` (auto P00001), `status`
-
-### Staff
-Fields: `firstName`, `lastName`, `role`, `specialization`, `phone`, `email`, `color` (hex, for calendar), `schedule[]` (per-day open/start/end), `isActive`
-
-### Appointment
-Fields: `patient` (ref), `dentist` (ref), `startTime`, `endTime`, `status` (scheduled / confirmed / in-progress / completed / cancelled / no-show), `type` (checkup / cleaning / filling / extraction / root-canal / crown / whitening / orthodontics / consultation / other), `reason`, `notes`
-
-### DentalChart
-Fields: `patient` (ref, unique), `teeth[32]` (each: number, condition, surfaces[], notes), `notes`, `lastUpdatedBy`
-
-Tooth conditions: `healthy` / `cavity` / `filled` / `crown` / `missing` / `implant` / `root-canal` / `bridge` / `veneer` / `extraction-needed`
-
-### ClinicalNote
-Fields: `patient` (ref), `appointment` (ref), `dentist` (ref), `visitDate`, `subjective`, `objective`, `assessment`, `plan`, `procedures[]`, `vitals` (BP, pulse, temp), `followUpDate`
-
-### TreatmentPlan
-Fields: `patient` (ref), `dentist` (ref), `title`, `status` (draft / proposed / approved / in-progress / completed / cancelled), `procedures[]` (each: name, tooth, surface, quantity, unitCost, status), `discount`, `discountType` (flat / percent), `approvedAt`, `approvedBy`
-
-Virtuals: `subtotal`, `grandTotal`
-
-### Prescription
-Fields: `patient` (ref), `dentist` (ref), `prescriptionNumber` (auto RX-YYYYMMDD-0001), `issueDate`, `medications[]` (name, dosage, frequency, duration, instructions, quantity), `diagnosis`, `isDispensed`
-
-### Invoice
-Fields: `patient` (ref), `dentist` (ref), `invoiceNumber` (auto INV-YYYY-0001), `issueDate`, `dueDate`, `status` (draft / sent / partial / paid / overdue / cancelled), `lineItems[]` (description, tooth, quantity, unitPrice), `discount`, `discountType`, `taxRate`, `insuranceCoverage`, `insuranceProvider`
-
-Virtuals: `subtotal`, `discountAmount`, `taxAmount`, `grandTotal`, `amountDue`
-
-### Payment
-Fields: `invoice` (ref), `patient` (ref), `amount`, `method` (cash / card / bank-transfer / insurance / cheque / other), `paymentDate`, `reference`, `receiptNumber` (auto RCP-YYYYMMDD-0001)
-
-### Notification
-Fields: `type`, `channel` (email / sms / in-app), `recipient` (patientId or userId, name, contact), `subject`, `body`, `status` (pending / sent / failed / read), `appointment` (ref)
+### Core resources
+| Resource | Base path | Notes |
+|----------|-----------|-------|
+| Clinic settings | `/api/clinic` | `GET` any · `PUT` admin |
+| Patients | `/api/patients` | list/get/create/update any · **delete admin** · dentists see only their own |
+| Staff | `/api/staff` | admin-only writes · `POST /:id/create-account` issues a login |
+| Appointments | `/api/appointments` | double-booking checked on create/update |
+| Dental chart | `/api/dental-chart/:patientId` | auto-creates a 32-tooth chart |
+| Clinical notes | `/api/clinical-notes` | read: any staff · **write: admin, dentist** |
+| Treatment plans | `/api/treatment-plans` | write: admin, dentist · `POST` invoice `/from-plan/:planId` |
+| Prescriptions | `/api/prescriptions` | write: admin, dentist · `PATCH /:id/dispense` |
+| Invoices | `/api/invoices` | **write: admin, receptionist** · delete admin |
+| Payments | `/api/payments` | create: admin, receptionist · auto-syncs invoice status |
+| Reports | `/api/reports/*` | admin, receptionist · `?start=&end=` (end is inclusive of the day) |
+| Notifications | `/api/notifications` | own notifications; delivery status recorded |
+| Public | `/api/public/*` | clinic info, staff, slots, contact, booking, patient registration |
 
 ---
 
 ## Roles & permissions
 
 | Action | Admin | Dentist | Receptionist | Assistant |
-|--------|-------|---------|--------------|-----------|
-| View patients | ✅ | ✅ | ✅ | ✅ |
-| Create/edit patients | ✅ | ✅ | ✅ | ✅ |
-| Delete patients | ✅ | ✅ | ❌ | ❌ |
-| Manage staff | ✅ | ❌ | ❌ | ❌ |
+|--------|:-----:|:-------:|:------------:|:---------:|
+| View patients | ✅ | ✅ (own) | ✅ | ✅ |
+| Create / edit patients | ✅ | ✅ | ✅ | ✅ |
+| Delete patients (+ their records) | ✅ | ❌ | ❌ | ❌ |
+| Manage staff & logins | ✅ | ❌ | ❌ | ❌ |
 | Book appointments | ✅ | ✅ | ✅ | ✅ |
-| Clinical notes & charts | ✅ | ✅ | ❌ | ✅ |
-| Invoices & payments | ✅ | ✅ | ✅ | ❌ |
-| Clinic settings | ✅ | ❌ | ❌ | ❌ |
-| Reports | ✅ | ✅ | ✅ | ✅ |
+| Clinical notes / treatment plans / prescriptions | ✅ | ✅ | ❌ | ❌ |
+| Edit dental chart | ✅ | ✅ | ❌ | ✅ |
+| Invoices & payments | ✅ | ❌ | ✅ | ❌ |
+| Clinic settings & reports | ✅ | ❌ | ✅ | ❌ |
 
-Permissions are enforced via the `requireRole(...roles)` middleware on protected routes.
+Enforced by `requireRole(...roles)` on the routers, plus per-patient scoping for dentists.
+
+---
+
+## Data models
+
+Twelve Mongoose models: **User, Clinic, Patient, Staff, Appointment, DentalChart, ClinicalNote,
+TreatmentPlan, Prescription, Invoice, Payment, Notification** (plus **Counter** for numbering).
+
+Highlights:
+- **Patient** — auto `patientNumber` (`P00001`), medical history, `createdBy`.
+- **DentalChart** — one per patient, 32 teeth each with condition + surfaces.
+- **Invoice** — line items with virtual `subtotal` / `discountAmount` / `taxAmount` / `grandTotal` / `amountDue`; auto `INV-YYYY-0001`.
+- **Payment** — auto `RCP-…`; creating/reversing one recalculates the invoice status.
+- **Counter** — backs all auto-numbers so IDs are never reused after a deletion.
 
 ---
 
 ## Key design decisions
 
-**Singleton clinic document** — There is exactly one `Clinic` document in the database. `GET /api/clinic` creates it automatically on first access, so no manual seeding is needed.
-
-**Auto-generated numbers** — Patient numbers (`P00001`), invoice numbers (`INV-2025-0001`), prescription numbers (`RX-20250515-0001`), and receipt numbers are all generated in Mongoose `pre("save")` hooks, not in the frontend.
-
-**Invoice status sync** — Invoice status (sent / partial / paid) is recalculated automatically every time a payment is created or reversed, via the `syncStatus()` helper called inside the payment controller. You never set payment status manually.
-
-**DentalChart auto-creation** — The first `GET /api/dental-chart/:patientId` call creates a fresh 32-tooth chart initialised to "healthy" if one doesn't exist yet. No explicit chart creation endpoint is needed.
-
-**JWT interceptor** — All Axios requests automatically attach the stored token via a request interceptor in `src/utils/api.js`. A 401 response automatically clears the token and redirects to `/login`.
-
-**FullCalendar date range fetch** — The appointment calendar calls `fetchAppointments` inside FullCalendar's `datesSet` callback, so appointments are re-fetched every time the user navigates to a new date range. No stale data.
-
-**Reports run in parallel** — All 8 report API calls are fired simultaneously with `Promise.allSettled`, so a slow aggregation on one chart never blocks the others from rendering.
+- **Numbering never reuses IDs** — patient/invoice/receipt/prescription numbers come from an atomic `Counter`, so deleting a record can't cause a duplicate-key clash on the next one.
+- **Invoice status is derived, never set by hand** — `syncStatus()` recalculates draft/sent/partial/paid from the payments each time one changes.
+- **No data leakage from writes** — every create/update runs through a field allowlist (`utils/fields.js`).
+- **Errors are centralised** — controllers are wrapped in `asyncHandler`; one error handler maps Mongoose errors to 400/404/409 and returns JSON.
+- **Public site loads lean** — pages are lazy-loaded, so a visitor booking online doesn't download the calendar/chart code used by the staff portal.
+- **Bookings can't double-book** — website confirmations validate the dentist's schedule and existing appointments before creating one.
 
 ---
 
-## Building for production
+## Not included (future work)
 
-```bash
-# Build the client
-cd client
-npm run build
-# Output is in client/dist/
-
-# Serve the API (use PM2 or similar in production)
-cd ../server
-node index.js
-```
-
-For production, set `NODE_ENV=production` and use a process manager like PM2:
-
-```bash
-npm install -g pm2
-pm2 start server/index.js --name dental-api
-pm2 save
-```
+Insurance claims, lab orders, a patient-facing portal, X-ray/file uploads, SMS sending (email works when SMTP is set), and recurring appointments.
 
 ---
 
-## What's not included (future work)
-
-- **Insurance claims** — tracking submission and approval with insurers
-- **Lab orders** — crown/mold order tracking with external labs
-- **Patient portal** — patient-facing login to view appointments and invoices
-- **File uploads** — X-ray and document storage (requires cloud storage like S3)
-- **Email/SMS sending** — notification system stores records but does not actually send (requires Twilio / SendGrid integration)
-- **Recurring appointments** — booking multiple appointments in a series
+Built for the Advanced Web Programming course. Licensed under the [MIT License](LICENSE).

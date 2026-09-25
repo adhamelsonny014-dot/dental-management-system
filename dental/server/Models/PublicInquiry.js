@@ -7,7 +7,7 @@ const publicInquirySchema = new mongoose.Schema(
       enum: ["contact", "booking"],
       required: true,
     },
-    name:  { type: String, required: true, trim: true },
+    name: { type: String, required: true, trim: true },
     email: { type: String, required: true, lowercase: true, trim: true },
     phone: { type: String, default: "", trim: true },
     subject: { type: String, default: "" },
@@ -18,9 +18,20 @@ const publicInquirySchema = new mongoose.Schema(
     serviceType: {
       type: String,
       enum: [
-        "checkup", "cleaning", "filling", "extraction", "root-canal",
-        "crown", "whitening", "orthodontics", "cosmetic", "gum", "retainers",
-        "consultation", "other", "",
+        "checkup",
+        "cleaning",
+        "filling",
+        "extraction",
+        "root-canal",
+        "crown",
+        "whitening",
+        "orthodontics",
+        "cosmetic",
+        "gum",
+        "retainers",
+        "consultation",
+        "other",
+        "",
       ],
       default: "",
     },
@@ -30,7 +41,7 @@ const publicInquirySchema = new mongoose.Schema(
       default: "new",
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 publicInquirySchema.index({ type: 1, status: 1, createdAt: -1 });

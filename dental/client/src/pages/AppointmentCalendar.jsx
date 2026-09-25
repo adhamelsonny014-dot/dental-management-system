@@ -1,9 +1,10 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import api from "../utils/api";
+import useDentists from "../hooks/useDentists";
 import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
 import PageHeader from "../components/PageHeader";
@@ -11,21 +12,21 @@ import BookAppointmentModal from "../components/BookAppointmentModal";
 import AppointmentDetailModal from "../components/AppointmentDetailModal";
 
 const STATUS_COLOR = {
-  "scheduled":   "#3b82f6",
-  "confirmed":   "#10b981",
+  scheduled: "#3b82f6",
+  confirmed: "#10b981",
   "in-progress": "#f59e0b",
-  "completed":   "#64748b",
-  "cancelled":   "#ef4444",
-  "no-show":     "#f97316",
+  completed: "#64748b",
+  cancelled: "#ef4444",
+  "no-show": "#f97316",
 };
 
 const apptToEvent = (appt) => ({
-  id:    appt._id,
+  id: appt._id,
   title: `${appt.patient?.firstName || "?"} ${appt.patient?.lastName || ""}`,
   start: appt.startTime,
-  end:   appt.endTime,
+  end: appt.endTime,
   backgroundColor: appt.dentist?.color || STATUS_COLOR[appt.status] || "#3b82f6",
-  borderColor:     appt.dentist?.color || STATUS_COLOR[appt.status] || "#3b82f6",
+  borderColor: appt.dentist?.color || STATUS_COLOR[appt.status] || "#3b82f6",
   extendedProps: { appointment: appt },
 });
 
@@ -35,38 +36,39 @@ const AppointmentCalendar = () => {
   const isDentist = user?.role === "dentist";
 
   const [appointments, setAppointments] = useState([]);
-  const [staff,        setStaff]        = useState([]);
-  const [loading,      setLoading]      = useState(true);
-  const [dentistFilter,setDentistFilter]= useState("");
-  const [bookModal,    setBookModal]    = useState(null);
-  const [detailAppt,   setDetailAppt]   = useState(null);
+  const staff = useDentists({ activeOnly: true });
+  const [loading, setLoading] = useState(true);
+  const [dentistFilter, setDentistFilter] = useState("");
+  const [bookModal, setBookModal] = useState(null);
+  const [detailAppt, setDetailAppt] = useState(null);
+
+  const fetchAppointments = useCallback(
+    async (fetchInfo) => {
+      try {
+        const start = fetchInfo?.startStr || new Date(Date.now() - 30 * 86400000).toISOString();
+        const end = fetchInfo?.endStr || new Date(Date.now() + 60 * 86400000).toISOString();
+        const params = new URLSearchParams({ start, end });
+
+        if (isDentist && user?.staffId) {
+          params.set("dentist", user.staffId);
+        } else if (dentistFilter) {
+          params.set("dentist", dentistFilter);
+        }
+
+        const res = await api.get(`/appointments?${params}`);
+        setAppointments(res.data);
+      } catch {
+        toast.error("Failed to load appointments");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [isDentist, user?.staffId, dentistFilter],
+  );
 
   useEffect(() => {
-    api.get("/staff?role=dentist&active=true").then((r) => setStaff(r.data)).catch(() => {});
-  }, []);
-
-  const fetchAppointments = async (fetchInfo) => {
-    try {
-      const start = fetchInfo?.startStr || new Date(Date.now() - 30 * 86400000).toISOString();
-      const end   = fetchInfo?.endStr   || new Date(Date.now() + 60 * 86400000).toISOString();
-      const params = new URLSearchParams({ start, end });
-
-      if (isDentist && user?.staffId) {
-        params.set("dentist", user.staffId);
-      } else if (dentistFilter) {
-        params.set("dentist", dentistFilter);
-      }
-
-      const res = await api.get(`/appointments?${params}`);
-      setAppointments(res.data);
-    } catch {
-      toast.error("Failed to load appointments");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => { fetchAppointments(); }, [dentistFilter]);
+    fetchAppointments();
+  }, [fetchAppointments]);
 
   const events = appointments
     .filter((a) => !dentistFilter || a.dentist?._id === dentistFilter)
@@ -85,7 +87,7 @@ const AppointmentCalendar = () => {
   };
 
   const handleUpdated = (updated) => {
-    setAppointments((prev) => prev.map((a) => a._id === updated._id ? updated : a));
+    setAppointments((prev) => prev.map((a) => (a._id === updated._id ? updated : a)));
   };
 
   const handleDeleted = (id) => {
@@ -116,7 +118,9 @@ const AppointmentCalendar = () => {
           <button
             onClick={() => setDentistFilter("")}
             className={`text-sm px-3 py-1.5 rounded-full border transition-colors ${
-              !dentistFilter ? "bg-primary-600 text-white border-primary-600" : "border-dental-border text-dental-muted hover:border-primary-300"
+              !dentistFilter
+                ? "bg-primary-600 text-white border-primary-600"
+                : "border-dental-border text-dental-muted hover:border-primary-300"
             }`}
           >
             All dentists
@@ -126,7 +130,9 @@ const AppointmentCalendar = () => {
               key={s._id}
               onClick={() => setDentistFilter(s._id)}
               className={`flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-full border transition-colors ${
-                dentistFilter === s._id ? "text-white border-transparent" : "border-dental-border text-dental-muted hover:border-primary-300"
+                dentistFilter === s._id
+                  ? "text-white border-transparent"
+                  : "border-dental-border text-dental-muted hover:border-primary-300"
               }`}
               style={dentistFilter === s._id ? { background: s.color, borderColor: s.color } : {}}
             >
@@ -159,9 +165,9 @@ const AppointmentCalendar = () => {
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
             initialView="timeGridWeek"
             headerToolbar={{
-              left:   "prev,next today",
+              left: "prev,next today",
               center: "title",
-              right:  "dayGridMonth,timeGridWeek,timeGridDay",
+              right: "dayGridMonth,timeGridWeek,timeGridDay",
             }}
             events={events}
             dateClick={handleDateClick}

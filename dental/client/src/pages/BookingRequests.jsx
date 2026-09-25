@@ -19,6 +19,7 @@ const BookingRequests = () => {
   const [staff, setStaff] = useState([]);
   const [loading, setLoading] = useState(true);
   const [assignId, setAssignId] = useState({});
+  const [slotInput, setSlotInput] = useState({}); // { [bookingId]: { date, time } }
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -46,6 +47,9 @@ const BookingRequests = () => {
       toast.error(err.response?.data?.message || "Action failed");
     }
   };
+
+  const setSlotField = (id, field, value) =>
+    setSlotInput((prev) => ({ ...prev, [id]: { ...prev[id], [field]: value } }));
 
   const isAdmin = user?.role === "admin" || user?.role === "receptionist";
   const isDentist = user?.role === "dentist";
@@ -93,21 +97,21 @@ const BookingRequests = () => {
               </p>
 
               {br.message ? <p className="text-xs text-slate-500 mb-4 italic">{br.message}</p> : null}
-{isDentist && br.status === "sent_to_doctor" && (
-  <div className="mb-3 px-3 py-2 bg-amber-50 border border-amber-200 rounded text-xs text-amber-800 font-medium">
-    ⏳ Awaiting your response — please approve or request reschedule below
-  </div>
-)}
-{isDentist && br.status === "doctor_approved" && (
-  <div className="mb-3 px-3 py-2 bg-green-50 border border-green-200 rounded text-xs text-green-800 font-medium">
-    ✅ You approved this — admin will confirm with patient
-  </div>
-)}
-{isDentist && br.status === "reschedule_requested" && (
-  <div className="mb-3 px-3 py-2 bg-blue-50 border border-blue-200 rounded text-xs text-blue-800 font-medium">
-    🔁 Reschedule requested — waiting for admin to handle
-  </div>
-)}
+              {isDentist && br.status === "sent_to_doctor" && (
+                <div className="mb-3 px-3 py-2 bg-amber-50 border border-amber-200 rounded text-xs text-amber-800 font-medium">
+                  ⏳ Awaiting your response — please approve or request reschedule below
+                </div>
+              )}
+              {isDentist && br.status === "doctor_approved" && (
+                <div className="mb-3 px-3 py-2 bg-green-50 border border-green-200 rounded text-xs text-green-800 font-medium">
+                  ✅ You approved this — admin will confirm with patient
+                </div>
+              )}
+              {isDentist && br.status === "reschedule_requested" && (
+                <div className="mb-3 px-3 py-2 bg-blue-50 border border-blue-200 rounded text-xs text-blue-800 font-medium">
+                  🔁 Reschedule requested — waiting for admin to handle
+                </div>
+              )}
               <div className="flex flex-wrap gap-2">
                 {isAdmin && br.flow === "category" && br.status === "pending_admin" ? (
                   <>
@@ -135,13 +139,44 @@ const BookingRequests = () => {
                 ) : null}
 
                 {isAdmin && ["pending_admin", "reschedule_requested"].includes(br.status) ? (
-                  <button
-                    type="button"
-                    className="btn-primary text-xs py-1.5"
-                    onClick={() => patch(br._id, "send-to-doctor")}
-                  >
-                    Send to doctor
-                  </button>
+                  <>
+                    {/* Set or change the time — required for "any time" requests and reschedules */}
+                    <input
+                      type="date"
+                      className="input max-w-[150px] py-1.5 text-xs"
+                      value={slotInput[br._id]?.date || ""}
+                      onChange={(e) => setSlotField(br._id, "date", e.target.value)}
+                    />
+                    <input
+                      type="time"
+                      step="900"
+                      className="input max-w-[110px] py-1.5 text-xs"
+                      value={slotInput[br._id]?.time || ""}
+                      onChange={(e) => setSlotField(br._id, "time", e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      className="btn-ghost text-xs py-1.5 border border-dental-border"
+                      disabled={!slotInput[br._id]?.date || !slotInput[br._id]?.time}
+                      onClick={() =>
+                        patch(br._id, "schedule", {
+                          date: slotInput[br._id].date,
+                          slotStart: slotInput[br._id].time,
+                        })
+                      }
+                    >
+                      {br.slotStart ? "Change time" : "Set time"}
+                    </button>
+                    <button
+                      type="button"
+                      className="btn-primary text-xs py-1.5"
+                      disabled={!br.slotDate || !br.slotStart}
+                      title={!br.slotDate || !br.slotStart ? "Set a date and time first" : undefined}
+                      onClick={() => patch(br._id, "send-to-doctor")}
+                    >
+                      Send to doctor
+                    </button>
+                  </>
                 ) : null}
 
                 {(isDentist || isAdmin) && br.status === "sent_to_doctor" ? (

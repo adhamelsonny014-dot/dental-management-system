@@ -1,29 +1,39 @@
 const COMMON_PROCEDURES = [
-  "Examination","X-ray","Cleaning","Scaling","Root planing",
-  "Composite filling","Amalgam filling","Crown preparation","Crown fitting",
-  "Root canal","Extraction","Implant placement","Whitening","Orthodontic adjustment",
+  "Examination",
+  "X-ray",
+  "Cleaning",
+  "Scaling",
+  "Root planing",
+  "Composite filling",
+  "Amalgam filling",
+  "Crown preparation",
+  "Crown fitting",
+  "Root canal",
+  "Extraction",
+  "Implant placement",
+  "Whitening",
+  "Orthodontic adjustment",
 ];
 
 const SOAPForm = ({ data, onChange }) => {
   const set = (e) => onChange({ ...data, [e.target.name]: e.target.value });
 
-  const setVital = (e) =>
-    onChange({ ...data, vitals: { ...data.vitals, [e.target.name]: e.target.value } });
+  const setVital = (e) => onChange({ ...data, vitals: { ...data.vitals, [e.target.name]: e.target.value } });
 
   const toggleProcedure = (proc) => {
     const procs = data.procedures || [];
     onChange({
       ...data,
-      procedures: procs.includes(proc)
-        ? procs.filter((p) => p !== proc)
-        : [...procs, proc],
+      procedures: procs.includes(proc) ? procs.filter((p) => p !== proc) : [...procs, proc],
     });
   };
 
   const SoapSection = ({ label, name, placeholder, color }) => (
     <div>
       <div className="flex items-center gap-2 mb-1.5">
-        <span className={`w-6 h-6 rounded flex items-center justify-center text-xs font-bold text-white flex-shrink-0 ${color}`}>
+        <span
+          className={`w-6 h-6 rounded flex items-center justify-center text-xs font-bold text-white flex-shrink-0 ${color}`}
+        >
           {label[0]}
         </span>
         <label className="text-sm font-semibold text-slate-700">{label}</label>
@@ -42,19 +52,27 @@ const SOAPForm = ({ data, onChange }) => {
   return (
     <div className="space-y-4">
       <SoapSection
-        label="Subjective" name="subjective" color="bg-blue-500"
+        label="Subjective"
+        name="subjective"
+        color="bg-blue-500"
         placeholder="Chief complaint, patient-reported symptoms, pain level (1-10)..."
       />
       <SoapSection
-        label="Objective" name="objective" color="bg-emerald-500"
+        label="Objective"
+        name="objective"
+        color="bg-emerald-500"
         placeholder="Clinical findings, examination results, X-ray observations..."
       />
       <SoapSection
-        label="Assessment" name="assessment" color="bg-amber-500"
+        label="Assessment"
+        name="assessment"
+        color="bg-amber-500"
         placeholder="Diagnosis, differential diagnosis..."
       />
       <SoapSection
-        label="Plan" name="plan" color="bg-purple-500"
+        label="Plan"
+        name="plan"
+        color="bg-purple-500"
         placeholder="Treatment plan, procedures recommended, referrals..."
       />
 
@@ -85,21 +103,33 @@ const SOAPForm = ({ data, onChange }) => {
         <div className="grid grid-cols-3 gap-3">
           <div>
             <label className="text-xs text-dental-muted mb-1 block">Blood pressure</label>
-            <input className="input text-sm" name="bloodPressure"
+            <input
+              className="input text-sm"
+              name="bloodPressure"
               value={data.vitals?.bloodPressure || ""}
-              onChange={setVital} placeholder="120/80" />
+              onChange={setVital}
+              placeholder="120/80"
+            />
           </div>
           <div>
             <label className="text-xs text-dental-muted mb-1 block">Pulse (bpm)</label>
-            <input className="input text-sm" name="pulse"
+            <input
+              className="input text-sm"
+              name="pulse"
               value={data.vitals?.pulse || ""}
-              onChange={setVital} placeholder="72" />
+              onChange={setVital}
+              placeholder="72"
+            />
           </div>
           <div>
             <label className="text-xs text-dental-muted mb-1 block">Temperature (°C)</label>
-            <input className="input text-sm" name="temperature"
+            <input
+              className="input text-sm"
+              name="temperature"
               value={data.vitals?.temperature || ""}
-              onChange={setVital} placeholder="37.0" />
+              onChange={setVital}
+              placeholder="37.0"
+            />
           </div>
         </div>
       </div>
@@ -107,9 +137,13 @@ const SOAPForm = ({ data, onChange }) => {
       {/* Follow-up */}
       <div>
         <label className="label">Follow-up date</label>
-        <input className="input" type="date" name="followUpDate"
+        <input
+          className="input"
+          type="date"
+          name="followUpDate"
           value={data.followUpDate ? data.followUpDate.split("T")[0] : ""}
-          onChange={set} />
+          onChange={set}
+        />
       </div>
     </div>
   );

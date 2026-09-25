@@ -58,7 +58,11 @@ const DoctorBookModal = ({ doctor, onClose }) => {
   if (!doctor) return null;
 
   return (
-    <div className="fixed inset-0 z-[90] flex items-center justify-center p-4" role="dialog" aria-modal="true">
+    <div
+      className="fixed inset-0 z-[90] flex items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+    >
       <button
         type="button"
         className="absolute inset-0 bg-clinic-ink/55 backdrop-blur-sm"

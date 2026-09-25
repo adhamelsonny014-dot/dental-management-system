@@ -20,15 +20,24 @@ const bookingRequestSchema = new mongoose.Schema(
       ],
       default: "pending_admin",
     },
-    patientName:  { type: String, required: true, trim: true },
+    patientName: { type: String, required: true, trim: true },
     patientEmail: { type: String, required: true, lowercase: true, trim: true },
     patientPhone: { type: String, default: "", trim: true },
-    message:      { type: String, default: "" },
+    message: { type: String, default: "" },
     serviceCategory: {
       type: String,
       enum: [
-        "checkup", "cleaning", "whitening", "cosmetic", "orthodontics",
-        "gum", "retainers", "consultation", "other", "",
+        "checkup",
+        "cleaning",
+        "filling",
+        "whitening",
+        "cosmetic",
+        "orthodontics",
+        "gum",
+        "retainers",
+        "consultation",
+        "other",
+        "",
       ],
       default: "",
     },
@@ -40,9 +49,9 @@ const bookingRequestSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Staff",
     },
-    slotDate:    { type: Date },
-    slotStart:   { type: String, default: "" },
-    slotEnd:     { type: String, default: "" },
+    slotDate: { type: Date },
+    slotStart: { type: String, default: "" },
+    slotEnd: { type: String, default: "" },
     appointment: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Appointment",
@@ -52,9 +61,9 @@ const bookingRequestSchema = new mongoose.Schema(
       ref: "Patient",
     },
     doctorNote: { type: String, default: "" },
-    adminNote:  { type: String, default: "" },
+    adminNote: { type: String, default: "" },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 bookingRequestSchema.index({ status: 1, createdAt: -1 });

@@ -5,7 +5,10 @@ const useImageOk = (src, preview) => {
   const [ok, setOk] = useState(false);
   const url = preview || src;
   useEffect(() => {
-    if (!url) { setOk(false); return; }
+    if (!url) {
+      setOk(false);
+      return;
+    }
     const img = new Image();
     img.onload = () => setOk(true);
     img.onerror = () => setOk(false);
@@ -118,15 +121,31 @@ const BeforeAfterSlider = ({
     <section
       ref={containerRef}
       className={`relative select-none overflow-hidden rounded-3xl shadow-[0_24px_80px_-20px_rgba(44,38,32,0.18)] ${heightClass} ${className}`}
-      onMouseDown={(e) => { setDragging(true); updateFromClientX(e.clientX); }}
-      onTouchStart={(e) => { setDragging(true); updateFromClientX(e.touches[0].clientX); }}
+      onMouseDown={(e) => {
+        setDragging(true);
+        updateFromClientX(e.clientX);
+      }}
+      onTouchStart={(e) => {
+        setDragging(true);
+        updateFromClientX(e.touches[0].clientX);
+      }}
     >
-      <img src={after} alt={afterAlt} className="absolute inset-0 w-full h-full object-cover" draggable={false} />
+      <img
+        src={after}
+        alt={afterAlt}
+        className="absolute inset-0 w-full h-full object-cover"
+        draggable={false}
+      />
       <section
         className="absolute inset-0 overflow-hidden"
         style={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}
       >
-        <img src={before} alt={beforeAlt} className="absolute inset-0 w-full h-full object-cover" draggable={false} />
+        <img
+          src={before}
+          alt={beforeAlt}
+          className="absolute inset-0 w-full h-full object-cover"
+          draggable={false}
+        />
       </section>
 
       <span
@@ -140,7 +159,12 @@ const BeforeAfterSlider = ({
         aria-valuenow={Math.round(position)}
         aria-label="Compare before and after"
       >
-        <svg className="w-5 h-5 text-clinic-ink rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg
+          className="w-5 h-5 text-clinic-ink rotate-90"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
         </svg>
       </span>

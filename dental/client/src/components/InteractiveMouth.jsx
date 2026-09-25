@@ -1,7 +1,5 @@
-import ToothSVG, { CONDITION_COLORS, CONDITION_LABELS } from "./ToothSVG";
-
-export const UPPER_TEETH = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
-export const LOWER_TEETH = [17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32];
+import ToothSVG from "./ToothSVG";
+import { CONDITION_COLORS, CONDITION_LABELS, UPPER_TEETH, LOWER_TEETH } from "../constants/teeth";
 
 const TOOTH_W = 28;
 const TOOTH_H = 40;
@@ -44,7 +42,12 @@ const InteractiveMouth = ({
             strokeDasharray={isSelected ? "0" : "3 2"}
           />
         ) : null}
-        <ToothSVG tooth={displayTooth} isSelected={isSelected} onClick={() => onToothClick?.(num)} isUpper={isUpper} />
+        <ToothSVG
+          tooth={displayTooth}
+          isSelected={isSelected}
+          onClick={() => onToothClick?.(num)}
+          isUpper={isUpper}
+        />
         {hasPlan && mode === "plan" ? (
           <text
             x={12}
@@ -68,13 +71,28 @@ const InteractiveMouth = ({
     <section className="select-none">
       <section className={compact ? "mb-3" : "mb-5"}>
         <svg viewBox={`0 0 ${svgWidth} ${TOOTH_H + 12}`} className="w-full" style={{ maxHeight: maxH }}>
-          <line x1={MIDLINE_X} y1={0} x2={MIDLINE_X} y2={TOOTH_H + 12} stroke="#e2e8f0" strokeWidth={1.5} strokeDasharray="4,3" />
+          <line
+            x1={MIDLINE_X}
+            y1={0}
+            x2={MIDLINE_X}
+            y2={TOOTH_H + 12}
+            stroke="#e2e8f0"
+            strokeWidth={1.5}
+            strokeDasharray="4,3"
+          />
           {UPPER_TEETH.map((num, i) => {
             const x = i * (TOOTH_W + GAP) + TOOTH_W / 2;
             return (
               <g key={num} transform={`translate(${x - 12}, 4)`}>
                 {renderTooth(num, true)}
-                <text x={12} y={TOOTH_H + 10} textAnchor="middle" fontSize={8} fill={selectedToothNumber === num ? "#2563eb" : "#94a3b8"} fontWeight={selectedToothNumber === num ? "700" : "400"}>
+                <text
+                  x={12}
+                  y={TOOTH_H + 10}
+                  textAnchor="middle"
+                  fontSize={8}
+                  fill={selectedToothNumber === num ? "#2563eb" : "#94a3b8"}
+                  fontWeight={selectedToothNumber === num ? "700" : "400"}
+                >
                   {num}
                 </text>
               </g>
@@ -91,12 +109,27 @@ const InteractiveMouth = ({
 
       <section>
         <svg viewBox={`0 0 ${svgWidth} ${TOOTH_H + 12}`} className="w-full" style={{ maxHeight: maxH }}>
-          <line x1={MIDLINE_X} y1={0} x2={MIDLINE_X} y2={TOOTH_H + 12} stroke="#e2e8f0" strokeWidth={1.5} strokeDasharray="4,3" />
+          <line
+            x1={MIDLINE_X}
+            y1={0}
+            x2={MIDLINE_X}
+            y2={TOOTH_H + 12}
+            stroke="#e2e8f0"
+            strokeWidth={1.5}
+            strokeDasharray="4,3"
+          />
           {LOWER_TEETH.map((num, i) => {
             const x = i * (TOOTH_W + GAP) + TOOTH_W / 2;
             return (
               <g key={num} transform={`translate(${x - 12}, 0)`}>
-                <text x={12} y={8} textAnchor="middle" fontSize={8} fill={selectedToothNumber === num ? "#2563eb" : "#94a3b8"} fontWeight={selectedToothNumber === num ? "700" : "400"}>
+                <text
+                  x={12}
+                  y={8}
+                  textAnchor="middle"
+                  fontSize={8}
+                  fill={selectedToothNumber === num ? "#2563eb" : "#94a3b8"}
+                  fontWeight={selectedToothNumber === num ? "700" : "400"}
+                >
                   {num}
                 </text>
                 <g transform="translate(0, 10)">{renderTooth(num, false)}</g>

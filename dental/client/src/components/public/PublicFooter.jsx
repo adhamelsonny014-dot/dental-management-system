@@ -15,18 +15,46 @@ const PublicFooter = () => (
         <section>
           <p className="text-xs uppercase tracking-wider text-clinic-cream/40 mb-4">Explore</p>
           <ul className="space-y-2 text-sm text-clinic-cream/65">
-            <li><Link to="/services" className="hover:text-white">Services</Link></li>
-            <li><Link to="/doctors" className="hover:text-white">Our doctors</Link></li>
-            <li><Link to="/about" className="hover:text-white">About us</Link></li>
-            <li><Link to="/book" className="hover:text-white">Book appointment</Link></li>
-            <li><Link to="/register-patient" className="hover:text-white">Patient registration</Link></li>
+            <li>
+              <Link to="/services" className="hover:text-white">
+                Services
+              </Link>
+            </li>
+            <li>
+              <Link to="/doctors" className="hover:text-white">
+                Our doctors
+              </Link>
+            </li>
+            <li>
+              <Link to="/about" className="hover:text-white">
+                About us
+              </Link>
+            </li>
+            <li>
+              <Link to="/book" className="hover:text-white">
+                Book appointment
+              </Link>
+            </li>
+            <li>
+              <Link to="/register-patient" className="hover:text-white">
+                Patient registration
+              </Link>
+            </li>
           </ul>
         </section>
         <section>
           <p className="text-xs uppercase tracking-wider text-clinic-cream/40 mb-4">Clinic</p>
           <ul className="space-y-2 text-sm text-clinic-cream/65">
-            <li><Link to="/contact" className="hover:text-white">Contact</Link></li>
-            <li><Link to="/login" className="hover:text-white">Staff portal</Link></li>
+            <li>
+              <Link to="/contact" className="hover:text-white">
+                Contact
+              </Link>
+            </li>
+            <li>
+              <Link to="/login" className="hover:text-white">
+                Staff portal
+              </Link>
+            </li>
           </ul>
         </section>
         <section>

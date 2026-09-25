@@ -16,7 +16,9 @@ const Home = () => {
   const [sending, setSending] = useState(false);
 
   useEffect(() => {
-    fetchClinic().then(setClinic).catch(() => {});
+    fetchClinic()
+      .then(setClinic)
+      .catch(() => {});
   }, []);
 
   const handleQuestion = async (e) => {
@@ -101,8 +103,8 @@ const Home = () => {
             Book directly with our experts
           </h2>
           <p className="text-slate-600 text-sm max-w-xl mb-12 leading-relaxed">
-            Tap a doctor to explore their work, then pick an open slot from the calendar. Your request goes to admin,
-            then the doctor confirms — we email you when it&apos;s locked in.
+            Tap a doctor to explore their work, then pick an open slot from the calendar. Your request goes to
+            admin, then the doctor confirms — we email you when it&apos;s locked in.
           </p>
           <FeaturedDoctors />
         </section>
@@ -191,20 +193,13 @@ const Home = () => {
                 Open in Google Maps →
               </a>
             ) : (
-              <p className="text-sm text-clinic-muted text-center px-6">Map embed — set address in clinic Settings</p>
+              <p className="text-sm text-clinic-muted text-center px-6">
+                Map embed — set address in clinic Settings
+              </p>
             )}
           </section>
         </section>
       </section>
-
-      <footer className="relative py-8 border-t border-sky-100 bg-gradient-to-r from-sky-50/90 via-white to-blue-50/90 text-center text-xs text-clinic-muted">
-        <p>
-          © {new Date().getFullYear()} Dental care ·{" "}
-          <button type="button" onClick={() => navigate("/login")} className="underline hover:text-blue-700">
-            Staff portal
-          </button>
-        </p>
-      </footer>
     </article>
   );
 };

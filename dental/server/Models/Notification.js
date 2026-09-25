@@ -4,8 +4,13 @@ const notificationSchema = new mongoose.Schema(
   {
     type: {
       type: String,
-      enum: ["appointment_reminder", "appointment_confirmed", "appointment_cancelled",
-             "appointment_rescheduled", "general"],
+      enum: [
+        "appointment_reminder",
+        "appointment_confirmed",
+        "appointment_cancelled",
+        "appointment_rescheduled",
+        "general",
+      ],
       default: "general",
     },
     channel: {
@@ -16,23 +21,23 @@ const notificationSchema = new mongoose.Schema(
     recipient: {
       // Either a patient or a user (staff)
       patientId: { type: mongoose.Schema.Types.ObjectId, ref: "Patient" },
-      userId:    { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-      name:      { type: String, default: "" },
-      contact:   { type: String, default: "" }, // email or phone
+      userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+      name: { type: String, default: "" },
+      contact: { type: String, default: "" }, // email or phone
     },
-    subject:    { type: String, default: "" },
-    body:       { type: String, required: true },
+    subject: { type: String, default: "" },
+    body: { type: String, required: true },
     status: {
       type: String,
       enum: ["pending", "sent", "failed", "read"],
       default: "pending",
     },
     appointment: { type: mongoose.Schema.Types.ObjectId, ref: "Appointment" },
-    readAt:      { type: Date },
-    sentAt:      { type: Date },
-    error:       { type: String, default: "" },
+    readAt: { type: Date },
+    sentAt: { type: Date },
+    error: { type: String, default: "" },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 notificationSchema.index({ "recipient.userId": 1, status: 1 });

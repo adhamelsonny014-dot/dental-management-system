@@ -6,26 +6,40 @@ import PageHeader from "../components/PageHeader";
 import PatientForm from "../components/PatientForm";
 
 const EMPTY = {
-  firstName: "", lastName: "", dateOfBirth: "", gender: "", nationalId: "",
-  phone: "", email: "", address: "", city: "",
+  firstName: "",
+  lastName: "",
+  dateOfBirth: "",
+  gender: "",
+  nationalId: "",
+  phone: "",
+  email: "",
+  address: "",
+  city: "",
   emergencyContact: { name: "", relationship: "", phone: "" },
-  bloodType: "unknown", allergies: [], medications: [], conditions: [],
-  medicalNotes: "", notes: "", referredBy: "", status: "active",
+  bloodType: "unknown",
+  allergies: [],
+  medications: [],
+  conditions: [],
+  medicalNotes: "",
+  notes: "",
+  referredBy: "",
+  status: "active",
 };
 
 const AddEditPatient = () => {
-  const { id }   = useParams();      // present = edit mode
+  const { id } = useParams(); // present = edit mode
   const navigate = useNavigate();
-  const isEdit   = Boolean(id);
+  const isEdit = Boolean(id);
 
-  const [data,    setData]    = useState(EMPTY);
+  const [data, setData] = useState(EMPTY);
   const [loading, setLoading] = useState(isEdit);
-  const [saving,  setSaving]  = useState(false);
+  const [saving, setSaving] = useState(false);
 
   // Load existing patient for edit
   useEffect(() => {
     if (!isEdit) return;
-    api.get(`/patients/${id}`)
+    api
+      .get(`/patients/${id}`)
       .then((r) => {
         const p = r.data;
         // Format date for <input type="date">
@@ -64,11 +78,12 @@ const AddEditPatient = () => {
     }
   };
 
-  if (loading) return (
-    <div className="p-8 flex justify-center">
-      <div className="w-6 h-6 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
-    </div>
-  );
+  if (loading)
+    return (
+      <div className="p-8 flex justify-center">
+        <div className="w-6 h-6 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
 
   return (
     <div className="p-8 max-w-3xl">
@@ -100,9 +115,7 @@ const AddEditPatient = () => {
             Cancel
           </button>
           <button type="submit" className="btn-primary px-6" disabled={saving}>
-            {saving
-              ? (isEdit ? "Saving..." : "Creating...")
-              : (isEdit ? "Save changes" : "Create patient")}
+            {saving ? (isEdit ? "Saving..." : "Creating...") : isEdit ? "Save changes" : "Create patient"}
           </button>
         </div>
       </form>

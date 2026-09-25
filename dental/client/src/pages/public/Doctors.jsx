@@ -43,8 +43,13 @@ const Doctors = () => {
             <p className="text-clinic-muted text-center py-12">Loading team…</p>
           ) : staff.length === 0 ? (
             <section className="text-center py-12 bg-clinic-sand rounded-2xl border border-clinic-border">
-              <p className="text-slate-600">Team profiles will appear here once added in the clinic system.</p>
-              <Link to="/book" className="inline-block mt-4 text-sm font-medium text-clinic-accent hover:underline">
+              <p className="text-slate-600">
+                Team profiles will appear here once added in the clinic system.
+              </p>
+              <Link
+                to="/book"
+                className="inline-block mt-4 text-sm font-medium text-clinic-accent hover:underline"
+              >
                 Book an appointment anyway →
               </Link>
             </section>
@@ -94,9 +99,7 @@ const TeamCard = ({ member }) => (
       <p className="text-sm text-clinic-accent font-medium mt-0.5">
         {ROLE_LABEL[member.role] || member.role}
       </p>
-      {member.specialization && (
-        <p className="text-sm text-slate-600 mt-2">{member.specialization}</p>
-      )}
+      {member.specialization && <p className="text-sm text-slate-600 mt-2">{member.specialization}</p>}
     </section>
   </article>
 );

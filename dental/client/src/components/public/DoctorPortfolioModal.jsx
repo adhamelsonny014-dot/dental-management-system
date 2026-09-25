@@ -15,7 +15,7 @@ const DoctorPortfolioModal = ({ doctor, onClose, onBook }) => {
         setTransitioning(false);
       }, 280);
     },
-    [images.length]
+    [images.length],
   );
 
   useEffect(() => {

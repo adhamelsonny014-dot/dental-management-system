@@ -2,26 +2,30 @@ import { useState } from "react";
 import api from "../utils/api";
 import toast from "react-hot-toast";
 
-const STATUSES = ["scheduled","confirmed","in-progress","completed","cancelled","no-show"];
+const STATUSES = ["scheduled", "confirmed", "in-progress", "completed", "cancelled", "no-show"];
 
 const statusStyle = {
-  "scheduled":   "bg-blue-100 text-blue-700",
-  "confirmed":   "bg-emerald-100 text-emerald-700",
+  scheduled: "bg-blue-100 text-blue-700",
+  confirmed: "bg-emerald-100 text-emerald-700",
   "in-progress": "bg-amber-100 text-amber-700",
-  "completed":   "bg-slate-100 text-slate-600",
-  "cancelled":   "bg-red-100 text-red-600",
-  "no-show":     "bg-orange-100 text-orange-700",
+  completed: "bg-slate-100 text-slate-600",
+  cancelled: "bg-red-100 text-red-600",
+  "no-show": "bg-orange-100 text-orange-700",
 };
 
-const fmtDateTime = (d) => new Date(d).toLocaleString("en-US", {
-  weekday: "short", month: "short", day: "numeric",
-  hour: "2-digit", minute: "2-digit",
-});
+const fmtDateTime = (d) =>
+  new Date(d).toLocaleString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 
 const AppointmentDetailModal = ({ appointment, onClose, onUpdated, onDeleted }) => {
-  const [status,  setStatus]  = useState(appointment.status);
-  const [saving,  setSaving]  = useState(false);
-  const [deleting,setDeleting]= useState(false);
+  const [status, setStatus] = useState(appointment.status);
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const handleStatusChange = async (newStatus) => {
     setSaving(true);
@@ -56,7 +60,10 @@ const AppointmentDetailModal = ({ appointment, onClose, onUpdated, onDeleted }) 
   const d = appointment.dentist;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.45)" }}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: "rgba(0,0,0,0.45)" }}
+    >
       <div className="card w-full max-w-sm">
         <div className="flex items-center justify-between px-5 py-4 border-b border-dental-border">
           <h2 className="font-display font-bold text-slate-900">Appointment</h2>
@@ -69,23 +76,34 @@ const AppointmentDetailModal = ({ appointment, onClose, onUpdated, onDeleted }) 
 
         <div className="px-5 py-4 space-y-3">
           {/* Status badge */}
-          <span className={`inline-block text-xs font-medium px-2.5 py-0.5 rounded-full capitalize ${statusStyle[status]}`}>
-            {status.replace("-"," ")}
+          <span
+            className={`inline-block text-xs font-medium px-2.5 py-0.5 rounded-full capitalize ${statusStyle[status]}`}
+          >
+            {status.replace("-", " ")}
           </span>
 
           {/* Patient */}
           <div>
             <p className="text-xs text-dental-muted mb-0.5">Patient</p>
-            <p className="font-medium text-slate-800">{p?.firstName} {p?.lastName}</p>
-            <p className="text-xs text-dental-muted">{p?.patientNumber} · {p?.phone}</p>
+            <p className="font-medium text-slate-800">
+              {p?.firstName} {p?.lastName}
+            </p>
+            <p className="text-xs text-dental-muted">
+              {p?.patientNumber} · {p?.phone}
+            </p>
           </div>
 
           {/* Dentist */}
           <div>
             <p className="text-xs text-dental-muted mb-0.5">Dentist</p>
             <div className="flex items-center gap-2">
-              <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: d?.color || "#3b82f6" }} />
-              <p className="font-medium text-slate-800">{d?.firstName} {d?.lastName}</p>
+              <span
+                className="w-3 h-3 rounded-full flex-shrink-0"
+                style={{ background: d?.color || "#3b82f6" }}
+              />
+              <p className="font-medium text-slate-800">
+                {d?.firstName} {d?.lastName}
+              </p>
             </div>
           </div>
 
@@ -99,7 +117,7 @@ const AppointmentDetailModal = ({ appointment, onClose, onUpdated, onDeleted }) 
           {appointment.type && (
             <div>
               <p className="text-xs text-dental-muted mb-0.5">Type</p>
-              <p className="text-sm text-slate-800 capitalize">{appointment.type.replace("-"," ")}</p>
+              <p className="text-sm text-slate-800 capitalize">{appointment.type.replace("-", " ")}</p>
             </div>
           )}
 
@@ -125,7 +143,7 @@ const AppointmentDetailModal = ({ appointment, onClose, onUpdated, onDeleted }) 
                       : "border-dental-border text-dental-muted hover:border-primary-400 hover:text-primary-600"
                   }`}
                 >
-                  {s.replace("-"," ")}
+                  {s.replace("-", " ")}
                 </button>
               ))}
             </div>
@@ -140,7 +158,9 @@ const AppointmentDetailModal = ({ appointment, onClose, onUpdated, onDeleted }) 
           >
             {deleting ? "Deleting..." : "Delete"}
           </button>
-          <button className="btn-ghost text-sm" onClick={onClose}>Close</button>
+          <button className="btn-ghost text-sm" onClick={onClose}>
+            Close
+          </button>
         </div>
       </div>
     </div>

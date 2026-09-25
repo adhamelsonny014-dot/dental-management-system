@@ -76,10 +76,27 @@ const Book = () => {
 
       <section className="py-16 sm:py-20">
         <section className="max-w-xl mx-auto px-5 sm:px-8">
-          <form onSubmit={handleSubmit} className="bg-white border border-sky-100 rounded-2xl p-6 sm:p-8 space-y-4 shadow-sm">
+          <form
+            onSubmit={handleSubmit}
+            className="bg-white border border-sky-100 rounded-2xl p-6 sm:p-8 space-y-4 shadow-sm"
+          >
             <Field label="Full name" name="name" value={form.name} onChange={handleChange} required />
-            <Field label="Email" name="email" type="email" value={form.email} onChange={handleChange} required />
-            <Field label="Phone" name="phone" type="tel" value={form.phone} onChange={handleChange} required />
+            <Field
+              label="Email"
+              name="email"
+              type="email"
+              value={form.email}
+              onChange={handleChange}
+              required
+            />
+            <Field
+              label="Phone"
+              name="phone"
+              type="tel"
+              value={form.phone}
+              onChange={handleChange}
+              required
+            />
 
             <label className="block">
               <span className="text-sm font-medium text-slate-700">Service category</span>
@@ -153,7 +170,8 @@ const Book = () => {
             </button>
 
             <p className="text-xs text-clinic-muted text-center leading-relaxed">
-              Flow: your request → admin assigns a dentist → doctor confirms → email &amp; profile notification.
+              Flow: your request → admin assigns a dentist → doctor confirms → email &amp; profile
+              notification.
             </p>
           </form>
         </section>

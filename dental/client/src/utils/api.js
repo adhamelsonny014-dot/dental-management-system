@@ -13,16 +13,21 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Handle 401 globally — redirect to login
+// Handle an expired/invalid session globally — redirect to login.
+// Skipped for the login request itself (a wrong password is shown on the form)
+// and for the startup session check (AuthContext handles it, so public pages
+// aren't redirected when an old token is left in the browser).
+const SKIP_REDIRECT = ["/auth/login", "/auth/me"];
+
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 && !SKIP_REDIRECT.includes(error.config?.url)) {
       localStorage.removeItem("token");
       window.location.href = "/login";
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 export default api;

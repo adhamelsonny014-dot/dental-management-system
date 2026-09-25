@@ -59,8 +59,12 @@ const PublicNavbar = () => {
             className="w-9 h-9 rounded-full border border-clinic-border flex items-center justify-center text-clinic-accent hover:bg-clinic-sand transition-colors"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+              />
             </svg>
           </button>
           <button
@@ -70,8 +74,12 @@ const PublicNavbar = () => {
             aria-label="Menu"
           >
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                d={open ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d={open ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
+              />
             </svg>
           </button>
         </section>
@@ -86,14 +94,20 @@ const PublicNavbar = () => {
           ))}
           <button
             type="button"
-            onClick={() => { setOpen(false); navigate("/register-patient"); }}
+            onClick={() => {
+              setOpen(false);
+              navigate("/register-patient");
+            }}
             className="w-full border border-clinic-border text-slate-700 py-3 rounded-full text-sm font-medium"
           >
             Patient register
           </button>
           <button
             type="button"
-            onClick={() => { setOpen(false); navigate("/book"); }}
+            onClick={() => {
+              setOpen(false);
+              navigate("/book");
+            }}
             className="w-full bg-clinic-ink text-clinic-cream py-3 rounded-full text-sm font-medium"
           >
             Book now

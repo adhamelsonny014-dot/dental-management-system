@@ -17,11 +17,7 @@ const SectionHeading = ({ eyebrow, title, description, align = "left", light = f
       {title}
     </h2>
     {description && (
-      <p
-        className={`mt-3 text-base leading-relaxed ${
-          light ? "text-clinic-cream/70" : "text-slate-600"
-        }`}
-      >
+      <p className={`mt-3 text-base leading-relaxed ${light ? "text-clinic-cream/70" : "text-slate-600"}`}>
         {description}
       </p>
     )}

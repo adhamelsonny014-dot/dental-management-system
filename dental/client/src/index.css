@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Sora:wght@600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Sora:wght@600;700&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -10,8 +10,14 @@
 }
 
 @keyframes fade-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .animate-fade-in {
@@ -19,7 +25,9 @@
 }
 
 .hero-blur-layer img {
-  transition: transform 8s ease-out, filter 0.6s ease;
+  transition:
+    transform 8s ease-out,
+    filter 0.6s ease;
 }
 
 .hero-blur-layer:hover img {

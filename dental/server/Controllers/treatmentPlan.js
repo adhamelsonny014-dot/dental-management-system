@@ -1,139 +1,112 @@
 const TreatmentPlan = require("../Models/TreatmentPlan");
-const Staff = require("../Models/Staff");
+const { findStaffForUser } = require("../utils/dentistScope");
+const asyncHandler = require("../utils/asyncHandler");
+const { FIELDS, pick } = require("../utils/fields");
+const { paginate } = require("../utils/paginate");
 
 const POPULATE = [
   { path: "patient", select: "firstName lastName patientNumber phone" },
-  { path: "dentist",  select: "firstName lastName" },
+  { path: "dentist", select: "firstName lastName" },
   { path: "createdBy", select: "name" },
 ];
 
 // GET /api/treatment-plans?patient=&status=&page=1&limit=10
-const getAll = async (req, res) => {
-  try {
-    const { patient, status, page = 1, limit = 10 } = req.query;
-    const query = {};
-    if (patient) query.patient = patient;
-    if (status) query.status = status;
+const getAll = asyncHandler(async (req, res) => {
+  const { patient, status, page = 1, limit = 10 } = req.query;
+  const query = {};
+  if (patient) query.patient = patient;
+  if (status) query.status = status;
 
-    if (req.user.role === "dentist") {
-      const staff = await Staff.findOne({ $or: [{ userId: req.user._id }, { email: req.user.email }] });
-      if (staff) query.dentist = staff._id;
-    }
-
-    const skip  = (Number(page) - 1) * Number(limit);
-    const total = await TreatmentPlan.countDocuments(query);
-    const plans = await TreatmentPlan.find(query)
-      .populate(POPULATE)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(Number(limit));
-
-    return res.status(200).json({ plans, total,
-      page: Number(page), totalPages: Math.ceil(total / Number(limit)) });
-  } catch (error) {
-    return res.status(500).json({ message: error.message });
+  if (req.user.role === "dentist") {
+    const staff = await findStaffForUser(req.user);
+    if (staff) query.dentist = staff._id;
   }
-};
+
+  const { items, ...meta } = await paginate(TreatmentPlan, query, {
+    page,
+    limit,
+    sort: { createdAt: -1 },
+    populate: POPULATE,
+  });
+  return res.status(200).json({ plans: items, ...meta });
+});
 
 // GET /api/treatment-plans/:id
-const getById = async (req, res) => {
-  try {
-    const plan = await TreatmentPlan.findById(req.params.id).populate(POPULATE);
-    if (!plan) return res.status(404).json({ message: "Treatment plan not found" });
-    return res.status(200).json(plan);
-  } catch (error) {
-    return res.status(500).json({ message: error.message });
-  }
-};
+const getById = asyncHandler(async (req, res) => {
+  const plan = await TreatmentPlan.findById(req.params.id).populate(POPULATE);
+  if (!plan) return res.status(404).json({ message: "Treatment plan not found" });
+  return res.status(200).json(plan);
+});
 
 // POST /api/treatment-plans
-const create = async (req, res) => {
-  try {
-    if (!req.body.patient) return res.status(400).json({ message: "Patient is required" });
-    const plan = await TreatmentPlan.create({ ...req.body, createdBy: req.user._id });
-    await plan.populate(POPULATE);
-    return res.status(201).json(plan);
-  } catch (error) {
-    return res.status(500).json({ message: error.message });
-  }
-};
+const create = asyncHandler(async (req, res) => {
+  if (!req.body.patient) return res.status(400).json({ message: "Patient is required" });
+  const plan = await TreatmentPlan.create({
+    ...pick(req.body, FIELDS.treatmentPlan),
+    createdBy: req.user._id,
+  });
+  await plan.populate(POPULATE);
+  return res.status(201).json(plan);
+});
 
 // PUT /api/treatment-plans/:id
-const update = async (req, res) => {
-  try {
-    const plan = await TreatmentPlan.findByIdAndUpdate(
-      req.params.id, req.body, { new: true, runValidators: true }
-    ).populate(POPULATE);
-    if (!plan) return res.status(404).json({ message: "Treatment plan not found" });
-    return res.status(200).json(plan);
-  } catch (error) {
-    return res.status(500).json({ message: error.message });
-  }
-};
+const update = asyncHandler(async (req, res) => {
+  const plan = await TreatmentPlan.findByIdAndUpdate(req.params.id, pick(req.body, FIELDS.treatmentPlan), {
+    new: true,
+    runValidators: true,
+  }).populate(POPULATE);
+  if (!plan) return res.status(404).json({ message: "Treatment plan not found" });
+  return res.status(200).json(plan);
+});
 
 // PATCH /api/treatment-plans/:id/status
-const updateStatus = async (req, res) => {
-  try {
-    const { status, approvedBy } = req.body;
-    const updates = { status };
-    if (status === "approved") {
-      updates.approvedAt = new Date();
-      if (approvedBy) updates.approvedBy = approvedBy;
-    }
-    const plan = await TreatmentPlan.findByIdAndUpdate(
-      req.params.id, updates, { new: true }
-    ).populate(POPULATE);
-    if (!plan) return res.status(404).json({ message: "Treatment plan not found" });
-    return res.status(200).json(plan);
-  } catch (error) {
-    return res.status(500).json({ message: error.message });
+const updateStatus = asyncHandler(async (req, res) => {
+  const { status, approvedBy } = req.body;
+  const updates = { status };
+  if (status === "approved") {
+    updates.approvedAt = new Date();
+    if (approvedBy) updates.approvedBy = approvedBy;
   }
-};
+  const plan = await TreatmentPlan.findByIdAndUpdate(req.params.id, updates, {
+    new: true,
+    runValidators: true,
+  }).populate(POPULATE);
+  if (!plan) return res.status(404).json({ message: "Treatment plan not found" });
+  return res.status(200).json(plan);
+});
 
 // PATCH /api/treatment-plans/:id/procedure/:procId  — update single procedure
-const updateProcedure = async (req, res) => {
-  try {
-    const plan = await TreatmentPlan.findById(req.params.id);
-    if (!plan) return res.status(404).json({ message: "Plan not found" });
+const updateProcedure = asyncHandler(async (req, res) => {
+  const plan = await TreatmentPlan.findById(req.params.id);
+  if (!plan) return res.status(404).json({ message: "Plan not found" });
 
-    const proc = plan.procedures.id(req.params.procId);
-    if (!proc) return res.status(404).json({ message: "Procedure not found" });
+  const proc = plan.procedures.id(req.params.procId);
+  if (!proc) return res.status(404).json({ message: "Procedure not found" });
 
-    Object.assign(proc, req.body);
-    if (req.body.status === "completed") proc.completedAt = new Date();
+  Object.assign(proc, pick(req.body, FIELDS.procedure));
+  if (req.body.status === "completed") proc.completedAt = new Date();
 
-    plan.markModified("procedures");
-    await plan.save();
-    await plan.populate(POPULATE);
-    return res.status(200).json(plan);
-  } catch (error) {
-    return res.status(500).json({ message: error.message });
-  }
-};
+  plan.markModified("procedures");
+  await plan.save();
+  await plan.populate(POPULATE);
+  return res.status(200).json(plan);
+});
 
 // DELETE /api/treatment-plans/:id
-const remove = async (req, res) => {
-  try {
-    const plan = await TreatmentPlan.findByIdAndDelete(req.params.id);
-    if (!plan) return res.status(404).json({ message: "Treatment plan not found" });
-    return res.status(200).json({ message: "Deleted" });
-  } catch (error) {
-    return res.status(500).json({ message: error.message });
-  }
-};
+const remove = asyncHandler(async (req, res) => {
+  const plan = await TreatmentPlan.findByIdAndDelete(req.params.id);
+  if (!plan) return res.status(404).json({ message: "Treatment plan not found" });
+  return res.status(200).json({ message: "Deleted" });
+});
 
 // GET /api/treatment-plans/:id/report — full plan for printable report
-const getReport = async (req, res) => {
-  try {
-    const plan = await TreatmentPlan.findById(req.params.id)
-      .populate("patient", "firstName lastName patientNumber phone email dateOfBirth")
-      .populate("dentist", "firstName lastName specialization")
-      .populate("createdBy", "name");
-    if (!plan) return res.status(404).json({ message: "Treatment plan not found" });
-    return res.status(200).json(plan);
-  } catch (error) {
-    return res.status(500).json({ message: error.message });
-  }
-};
+const getReport = asyncHandler(async (req, res) => {
+  const plan = await TreatmentPlan.findById(req.params.id)
+    .populate("patient", "firstName lastName patientNumber phone email dateOfBirth")
+    .populate("dentist", "firstName lastName specialization")
+    .populate("createdBy", "name");
+  if (!plan) return res.status(404).json({ message: "Treatment plan not found" });
+  return res.status(200).json(plan);
+});
 
 module.exports = { getAll, getById, create, update, updateStatus, updateProcedure, remove, getReport };
